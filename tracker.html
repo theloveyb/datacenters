@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ontario & Toronto AI Data Center Tracker</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #242733;
+    --border: #2e3140;
+    --text: #e4e6ed;
+    --text-muted: #8b8fa3;
+    --accent: #6c72ff;
+    --accent-dim: rgba(108,114,255,0.15);
+    --red: #ff5c72;
+    --red-dim: rgba(255,92,114,0.12);
+    --green: #2dd4a8;
+    --green-dim: rgba(45,212,168,0.12);
+    --gold: #f5a623;
+    --gold-dim: rgba(245,166,35,0.12);
+    --blue: #4ea0f7;
+    --blue-dim: rgba(78,160,247,0.12);
+    --purple: #a78bfa;
+    --purple-dim: rgba(167,139,250,0.12);
+    --radius: 10px;
+    --shadow: 0 2px 12px rgba(0,0,0,0.3);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* ─── Header ────────────────────────────────────────── */
+  .header {
+    background: linear-gradient(135deg, #1a1d27 0%, #0f1117 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 32px 0 28px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header-inner {
+    max-width: 1320px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+  .header h1 {
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    margin-bottom: 4px;
+  }
+  .header h1 span { color: var(--accent); }
+  .header .subtitle {
+    color: var(--text-muted);
+    font-size: 14px;
+  }
+
+  /* ─── Stats bar ─────────────────────────────────────── */
+  .stats-bar {
+    display: flex;
+    gap: 16px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+  }
+  .stat-chip {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 18px;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .stat-chip .num {
+    font-weight: 700;
+    font-size: 18px;
+  }
+  .stat-chip.accent .num { color: var(--accent); }
+  .stat-chip.red .num { color: var(--red); }
+  .stat-chip.green .num { color: var(--green); }
+  .stat-chip.gold .num { color: var(--gold); }
+  .stat-chip.blue .num { color: var(--blue); }
+
+  /* ─── Controls ──────────────────────────────────────── */
+  .controls {
+    max-width: 1320px;
+    margin: 24px auto 0;
+    padding: 0 24px;
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .search-box {
+    flex: 1;
+    min-width: 240px;
+    position: relative;
+  }
+  .search-box input {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px 10px 38px;
+    color: var(--text);
+    font-size: 14px;
+    outline: none;
+    transition: border 0.2s;
+  }
+  .search-box input:focus {
+    border-color: var(--accent);
+  }
+  .search-box::before {
+    content: "\1F50D";
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 14px;
+    opacity: 0.5;
+  }
+
+  .filter-group {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .filter-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 7px 16px;
+    color: var(--text-muted);
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .filter-btn:hover { border-color: var(--accent); color: var(--text); }
+  .filter-btn.active {
+    background: var(--accent-dim);
+    border-color: var(--accent);
+    color: var(--accent);
+    font-weight: 600;
+  }
+  .filter-btn.cat-legislation.active { background: var(--red-dim); border-color: var(--red); color: var(--red); }
+  .filter-btn.cat-investment.active { background: var(--green-dim); border-color: var(--green); color: var(--green); }
+  .filter-btn.cat-project.active { background: var(--gold-dim); border-color: var(--gold); color: var(--gold); }
+  .filter-btn.cat-grid.active { background: var(--blue-dim); border-color: var(--blue); color: var(--blue); }
+  .filter-btn.cat-market.active { background: var(--purple-dim); border-color: var(--purple); color: var(--purple); }
+
+  .view-toggle {
+    display: flex;
+    gap: 4px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 3px;
+  }
+  .view-btn {
+    background: transparent;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 14px;
+    color: var(--text-muted);
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .view-btn.active {
+    background: var(--accent);
+    color: white;
+    font-weight: 600;
+  }
+
+  .impact-filter {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    margin-left: 4px;
+  }
+  .impact-filter label {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-right: 4px;
+  }
+  .impact-dot {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    font-weight: 700;
+    color: transparent;
+  }
+  .impact-dot:hover { transform: scale(1.15); }
+  .impact-dot.high { background: var(--red); border-color: var(--red); }
+  .impact-dot.medium { background: var(--gold); border-color: var(--gold); }
+  .impact-dot.low { background: var(--text-muted); border-color: var(--text-muted); }
+  .impact-dot.active { color: white; box-shadow: 0 0 0 3px rgba(255,255,255,0.15); }
+  .impact-dot.inactive { opacity: 0.25; }
+
+  /* ─── Main content ──────────────────────────────────── */
+  .main {
+    max-width: 1320px;
+    margin: 24px auto;
+    padding: 0 24px 60px;
+  }
+
+  /* ─── Timeline view ─────────────────────────────────── */
+  .timeline {
+    position: relative;
+    padding-left: 40px;
+  }
+  .timeline::before {
+    content: "";
+    position: absolute;
+    left: 15px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--border);
+  }
+  .timeline-year {
+    position: relative;
+    margin: 32px 0 16px;
+  }
+  .timeline-year .year-label {
+    position: absolute;
+    left: -40px;
+    background: var(--accent);
+    color: white;
+    font-weight: 700;
+    font-size: 13px;
+    padding: 4px 10px;
+    border-radius: 12px;
+  }
+
+  /* ─── Card ──────────────────────────────────────────── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    margin-bottom: 12px;
+    transition: all 0.2s;
+    cursor: default;
+    position: relative;
+  }
+  .card:hover {
+    border-color: var(--accent);
+    box-shadow: var(--shadow);
+    transform: translateY(-1px);
+  }
+  .card::before {
+    content: "";
+    position: absolute;
+    left: -33px;
+    top: 24px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    background: var(--bg);
+  }
+  .card.cat-legislation::before { background: var(--red); border-color: var(--red); }
+  .card.cat-investment::before { background: var(--green); border-color: var(--green); }
+  .card.cat-project::before { background: var(--gold); border-color: var(--gold); }
+  .card.cat-grid::before { background: var(--blue); border-color: var(--blue); }
+  .card.cat-market::before { background: var(--purple); border-color: var(--purple); }
+
+  .card-top {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+  }
+  .card-date {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+  .badge {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 10px;
+    border-radius: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .badge-legislation { background: var(--red-dim); color: var(--red); }
+  .badge-investment { background: var(--green-dim); color: var(--green); }
+  .badge-project { background: var(--gold-dim); color: var(--gold); }
+  .badge-grid { background: var(--blue-dim); color: var(--blue); }
+  .badge-market { background: var(--purple-dim); color: var(--purple); }
+
+  .badge-impact {
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 700;
+    margin-left: auto;
+  }
+  .badge-impact.high { background: var(--red-dim); color: var(--red); }
+  .badge-impact.medium { background: var(--gold-dim); color: var(--gold); }
+  .badge-impact.low { background: var(--surface2); color: var(--text-muted); }
+
+  .card-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    line-height: 1.4;
+  }
+  .card-summary {
+    font-size: 14px;
+    color: var(--text-muted);
+    line-height: 1.65;
+    margin-bottom: 12px;
+  }
+  .card-meta {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    font-size: 12px;
+    color: var(--text-muted);
+    align-items: center;
+  }
+  .card-meta .meta-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .card-meta .entity-tag {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+  }
+  .card-meta a {
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 500;
+  }
+  .card-meta a:hover { text-decoration: underline; }
+  .capacity-badge {
+    background: var(--blue-dim);
+    color: var(--blue);
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 11px;
+  }
+  .investment-badge {
+    background: var(--green-dim);
+    color: var(--green);
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 11px;
+  }
+
+  /* ─── Grid (card) view ──────────────────────────────── */
+  .grid-view {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+    gap: 16px;
+  }
+  .grid-view .card {
+    margin-bottom: 0;
+  }
+  .grid-view .card::before { display: none; }
+
+  /* ─── No results ────────────────────────────────────── */
+  .no-results {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-muted);
+  }
+  .no-results .icon { font-size: 40px; margin-bottom: 12px; }
+  .no-results p { font-size: 15px; }
+
+  /* ─── Summary panel ─────────────────────────────────── */
+  .summary-panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    margin-bottom: 24px;
+  }
+  .summary-panel h3 {
+    font-size: 14px;
+    color: var(--text-muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+  }
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+  }
+  .summary-item {
+    background: var(--surface2);
+    border-radius: 8px;
+    padding: 14px 16px;
+  }
+  .summary-item .label {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+  }
+  .summary-item .value {
+    font-size: 20px;
+    font-weight: 700;
+  }
+  .summary-item .value.accent { color: var(--accent); }
+  .summary-item .value.green { color: var(--green); }
+  .summary-item .value.red { color: var(--red); }
+  .summary-item .value.gold { color: var(--gold); }
+  .summary-item .value.blue { color: var(--blue); }
+
+  /* ─── Responsive ────────────────────────────────────── */
+  @media (max-width: 768px) {
+    .header { padding: 20px 0 16px; }
+    .header h1 { font-size: 20px; }
+    .controls { flex-direction: column; align-items: stretch; }
+    .search-box { min-width: 100%; }
+    .grid-view { grid-template-columns: 1fr; }
+    .timeline { padding-left: 32px; }
+    .card::before { left: -25px; }
+    .timeline::before { left: 12px; }
+    .stats-bar { gap: 8px; }
+    .stat-chip { padding: 8px 12px; font-size: 12px; }
+    .stat-chip .num { font-size: 15px; }
+  }
+
+  /* ─── Scrollbar ─────────────────────────────────────── */
+  ::-webkit-scrollbar { width: 8px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+  /* animations */
+  .card { animation: fadeIn 0.3s ease-out; }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-inner">
+    <h1><span>Ontario & Toronto</span> AI Data Center Tracker</h1>
+    <div class="subtitle">Tracking news, legislation, investments, projects, and grid developments &mdash; updated Jan 2026</div>
+    <div class="stats-bar" id="statsBar"></div>
+  </div>
+</div>
+
+<div class="controls" id="controls">
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="Search events, companies, locations...">
+  </div>
+  <div class="filter-group" id="categoryFilters"></div>
+  <div class="impact-filter" id="impactFilter">
+    <label>Impact:</label>
+  </div>
+  <div class="view-toggle">
+    <button class="view-btn active" data-view="timeline">Timeline</button>
+    <button class="view-btn" data-view="grid">Cards</button>
+  </div>
+</div>
+
+<div class="main" id="main">
+  <div class="summary-panel" id="summaryPanel"></div>
+  <div id="eventsContainer"></div>
+</div>
+
+<script>
+// ─── Data ──────────────────────────────────────────────────────────────
+let DATA = [];
+let state = {
+  search: "",
+  categories: new Set(),
+  impacts: new Set(["high", "medium", "low"]),
+  view: "timeline",
+};
+
+const CATEGORY_META = {
+  legislation: { label: "Legislation & Policy", color: "red" },
+  investment:  { label: "Investment",           color: "green" },
+  project:     { label: "Projects",             color: "gold" },
+  grid:        { label: "Grid & Power",         color: "blue" },
+  market:      { label: "Market & Analysis",    color: "purple" },
+};
+
+// ─── Init ──────────────────────────────────────────────────────────────
+async function init() {
+  try {
+    const resp = await fetch("tracker_data.json");
+    DATA = await resp.json();
+  } catch {
+    DATA = [];
+  }
+  DATA.sort((a, b) => b.date.localeCompare(a.date));
+  state.categories = new Set(Object.keys(CATEGORY_META));
+  buildCategoryFilters();
+  buildImpactFilter();
+  buildViewToggle();
+  render();
+}
+
+// ─── Filters UI ────────────────────────────────────────────────────────
+function buildCategoryFilters() {
+  const wrap = document.getElementById("categoryFilters");
+  // "All" button
+  const allBtn = document.createElement("button");
+  allBtn.className = "filter-btn active";
+  allBtn.textContent = "All";
+  allBtn.dataset.cat = "all";
+  allBtn.addEventListener("click", () => {
+    state.categories = new Set(Object.keys(CATEGORY_META));
+    refreshCatButtons();
+    render();
+  });
+  wrap.appendChild(allBtn);
+
+  for (const [key, meta] of Object.entries(CATEGORY_META)) {
+    const btn = document.createElement("button");
+    btn.className = `filter-btn cat-${key} active`;
+    btn.textContent = meta.label;
+    btn.dataset.cat = key;
+    btn.addEventListener("click", () => {
+      if (state.categories.size === Object.keys(CATEGORY_META).length) {
+        // switching from "all" to single
+        state.categories = new Set([key]);
+      } else if (state.categories.has(key)) {
+        state.categories.delete(key);
+        if (state.categories.size === 0)
+          state.categories = new Set(Object.keys(CATEGORY_META));
+      } else {
+        state.categories.add(key);
+      }
+      refreshCatButtons();
+      render();
+    });
+    wrap.appendChild(btn);
+  }
+}
+
+function refreshCatButtons() {
+  const allActive = state.categories.size === Object.keys(CATEGORY_META).length;
+  document.querySelectorAll("#categoryFilters .filter-btn").forEach(btn => {
+    const cat = btn.dataset.cat;
+    if (cat === "all") {
+      btn.classList.toggle("active", allActive);
+    } else {
+      btn.classList.toggle("active", state.categories.has(cat));
+    }
+  });
+}
+
+function buildImpactFilter() {
+  const wrap = document.getElementById("impactFilter");
+  for (const level of ["high", "medium", "low"]) {
+    const dot = document.createElement("button");
+    dot.className = `impact-dot ${level} active`;
+    dot.title = level.charAt(0).toUpperCase() + level.slice(1) + " impact";
+    dot.textContent = level.charAt(0).toUpperCase();
+    dot.addEventListener("click", () => {
+      if (state.impacts.has(level)) {
+        state.impacts.delete(level);
+        dot.classList.remove("active");
+        dot.classList.add("inactive");
+      } else {
+        state.impacts.add(level);
+        dot.classList.add("active");
+        dot.classList.remove("inactive");
+      }
+      if (state.impacts.size === 0) {
+        state.impacts = new Set(["high", "medium", "low"]);
+        wrap.querySelectorAll(".impact-dot").forEach(d => {
+          d.classList.add("active");
+          d.classList.remove("inactive");
+        });
+      }
+      render();
+    });
+    wrap.appendChild(dot);
+  }
+}
+
+function buildViewToggle() {
+  document.querySelectorAll(".view-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      state.view = btn.dataset.view;
+      document.querySelectorAll(".view-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      render();
+    });
+  });
+}
+
+// ─── Search ────────────────────────────────────────────────────────────
+document.getElementById("searchInput").addEventListener("input", (e) => {
+  state.search = e.target.value.toLowerCase().trim();
+  render();
+});
+
+// ─── Filter logic ──────────────────────────────────────────────────────
+function filteredData() {
+  return DATA.filter(ev => {
+    if (!state.categories.has(ev.category)) return false;
+    if (!state.impacts.has(ev.impact)) return false;
+    if (state.search) {
+      const haystack = [
+        ev.title, ev.summary, ev.location,
+        ...(ev.entities || []),
+        ev.category, ev.subcategory,
+        ev.source_name,
+      ].join(" ").toLowerCase();
+      if (!haystack.includes(state.search)) return false;
+    }
+    return true;
+  });
+}
+
+// ─── Render ────────────────────────────────────────────────────────────
+function render() {
+  const events = filteredData();
+  renderStats(events);
+  renderSummary(events);
+  const container = document.getElementById("eventsContainer");
+  container.innerHTML = "";
+
+  if (events.length === 0) {
+    container.innerHTML = `
+      <div class="no-results">
+        <div class="icon">&#128269;</div>
+        <p>No events match the current filters.</p>
+      </div>`;
+    return;
+  }
+
+  if (state.view === "timeline") {
+    renderTimeline(container, events);
+  } else {
+    renderGrid(container, events);
+  }
+}
+
+function renderTimeline(container, events) {
+  const timeline = document.createElement("div");
+  timeline.className = "timeline";
+  let currentYear = null;
+
+  for (const ev of events) {
+    const year = ev.date.substring(0, 4);
+    if (year !== currentYear) {
+      currentYear = year;
+      const yearDiv = document.createElement("div");
+      yearDiv.className = "timeline-year";
+      yearDiv.innerHTML = `<span class="year-label">${year}</span>`;
+      timeline.appendChild(yearDiv);
+    }
+    timeline.appendChild(createCard(ev));
+  }
+  container.appendChild(timeline);
+}
+
+function renderGrid(container, events) {
+  const grid = document.createElement("div");
+  grid.className = "grid-view";
+  for (const ev of events) {
+    grid.appendChild(createCard(ev));
+  }
+  container.appendChild(grid);
+}
+
+function createCard(ev) {
+  const card = document.createElement("div");
+  card.className = `card cat-${ev.category}`;
+
+  const dateStr = formatDate(ev.date);
+  const catMeta = CATEGORY_META[ev.category] || {};
+
+  let metaItems = "";
+  if (ev.location) {
+    metaItems += `<span class="meta-item">&#128205; ${esc(ev.location)}</span>`;
+  }
+  if (ev.capacity_mw) {
+    metaItems += `<span class="meta-item"><span class="capacity-badge">${ev.capacity_mw.toLocaleString()} MW</span></span>`;
+  }
+  if (ev.investment_cad) {
+    metaItems += `<span class="meta-item"><span class="investment-badge">${formatCAD(ev.investment_cad)}</span></span>`;
+  }
+  if (ev.entities && ev.entities.length > 0) {
+    for (const e of ev.entities) {
+      metaItems += `<span class="entity-tag">${esc(e)}</span>`;
+    }
+  }
+  if (ev.source_url) {
+    metaItems += `<a href="${esc(ev.source_url)}" target="_blank" rel="noopener">${esc(ev.source_name || "Source")}</a>`;
+  }
+
+  card.innerHTML = `
+    <div class="card-top">
+      <span class="card-date">${dateStr}</span>
+      <span class="badge badge-${ev.category}">${esc(catMeta.label || ev.category)}</span>
+      ${ev.subcategory ? `<span class="badge" style="background:var(--surface2);color:var(--text-muted)">${esc(ev.subcategory)}</span>` : ""}
+      <span class="badge-impact ${ev.impact}">${ev.impact}</span>
+    </div>
+    <div class="card-title">${esc(ev.title)}</div>
+    <div class="card-summary">${esc(ev.summary)}</div>
+    <div class="card-meta">${metaItems}</div>
+  `;
+  return card;
+}
+
+// ─── Stats bar ─────────────────────────────────────────────────────────
+function renderStats(events) {
+  const bar = document.getElementById("statsBar");
+  const total = events.length;
+  const highImpact = events.filter(e => e.impact === "high").length;
+  const totalInvestment = events.reduce((sum, e) => sum + (e.investment_cad || 0), 0);
+  const totalCapacity = events.filter(e => e.capacity_mw).reduce((sum, e) => sum + e.capacity_mw, 0);
+  const catCounts = {};
+  for (const e of events) catCounts[e.category] = (catCounts[e.category] || 0) + 1;
+
+  bar.innerHTML = `
+    <div class="stat-chip accent"><span class="num">${total}</span> events tracked</div>
+    <div class="stat-chip red"><span class="num">${highImpact}</span> high-impact</div>
+    <div class="stat-chip green"><span class="num">${formatCADShort(totalInvestment)}</span> investments cited</div>
+    <div class="stat-chip blue"><span class="num">${totalCapacity.toLocaleString()} MW</span> capacity referenced</div>
+    <div class="stat-chip gold"><span class="num">${catCounts.legislation || 0}</span> legislative</div>
+  `;
+}
+
+// ─── Summary panel ─────────────────────────────────────────────────────
+function renderSummary(events) {
+  const panel = document.getElementById("summaryPanel");
+  if (events.length === 0) { panel.innerHTML = ""; return; }
+
+  const legEvents = events.filter(e => e.category === "legislation");
+  const invEvents = events.filter(e => e.category === "investment");
+  const projEvents = events.filter(e => e.category === "project");
+  const gridEvents = events.filter(e => e.category === "grid");
+
+  const latestLeg = legEvents.length > 0 ? legEvents[0] : null;
+  const latestProj = projEvents.length > 0 ? projEvents[0] : null;
+
+  const totalInv = invEvents.reduce((s, e) => s + (e.investment_cad || 0), 0);
+  const dateRange = events.length > 0
+    ? `${formatDate(events[events.length-1].date)} — ${formatDate(events[0].date)}`
+    : "—";
+
+  panel.innerHTML = `
+    <h3>Dashboard Summary</h3>
+    <div class="summary-grid">
+      <div class="summary-item">
+        <div class="label">Date Range</div>
+        <div class="value accent">${dateRange}</div>
+      </div>
+      <div class="summary-item">
+        <div class="label">Total Investments Cited</div>
+        <div class="value green">${formatCAD(totalInv)}</div>
+      </div>
+      <div class="summary-item">
+        <div class="label">Latest Legislation</div>
+        <div class="value red" style="font-size:14px">${latestLeg ? esc(latestLeg.title.substring(0, 60)) + "..." : "—"}</div>
+      </div>
+      <div class="summary-item">
+        <div class="label">Latest Project</div>
+        <div class="value gold" style="font-size:14px">${latestProj ? esc(latestProj.title.substring(0, 60)) + "..." : "—"}</div>
+      </div>
+      <div class="summary-item">
+        <div class="label">Legislative Events</div>
+        <div class="value red">${legEvents.length}</div>
+      </div>
+      <div class="summary-item">
+        <div class="label">Grid / Power Events</div>
+        <div class="value blue">${gridEvents.length}</div>
+      </div>
+    </div>
+  `;
+}
+
+// ─── Helpers ───────────────────────────────────────────────────────────
+function formatDate(dateStr) {
+  const d = new Date(dateStr + "T00:00:00");
+  return d.toLocaleDateString("en-CA", { year: "numeric", month: "short", day: "numeric" });
+}
+
+function formatCAD(num) {
+  if (!num) return "—";
+  if (num >= 1e9) return `C$${(num / 1e9).toFixed(1)}B`;
+  if (num >= 1e6) return `C$${(num / 1e6).toFixed(0)}M`;
+  return `C$${num.toLocaleString()}`;
+}
+
+function formatCADShort(num) {
+  if (!num) return "C$0";
+  if (num >= 1e9) return `C$${(num / 1e9).toFixed(1)}B`;
+  if (num >= 1e6) return `C$${(num / 1e6).toFixed(0)}M`;
+  return `C$${num.toLocaleString()}`;
+}
+
+function esc(str) {
+  const div = document.createElement("div");
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+// ─── Launch ────────────────────────────────────────────────────────────
+init();
+</script>
+</body>
+</html>
