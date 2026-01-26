@@ -968,20 +968,9 @@ const CATEGORY_META = {
 };
 
 // ─── Init ──────────────────────────────────────────────────────────────
-async function init() {
-  // Try to load from external JSON first (works when served via HTTP),
-  // fall back to embedded data (works with local file:// opening).
-  try {
-    const resp = await fetch("tracker_data.json");
-    if (resp.ok) {
-      DATA = await resp.json();
-    } else {
-      DATA = EMBEDDED_DATA;
-    }
-  } catch {
-    DATA = EMBEDDED_DATA;
-  }
-  DATA.sort((a, b) => b.date.localeCompare(a.date));
+function init() {
+  DATA = EMBEDDED_DATA.slice();
+  DATA.sort(function(a, b) { return b.date.localeCompare(a.date); });
   state.categories = new Set(Object.keys(CATEGORY_META));
   buildCategoryFilters();
   buildImpactFilter();
@@ -1291,7 +1280,15 @@ function esc(str) {
 }
 
 // ─── Launch ────────────────────────────────────────────────────────────
-init();
+try {
+  init();
+} catch (err) {
+  console.error("Tracker init failed:", err);
+  document.getElementById("eventsContainer").innerHTML =
+    '<div style="color:#ff5c72;padding:40px;text-align:center">' +
+    '<p>Error loading tracker: ' + err.message + '</p>' +
+    '<p>Embedded data entries: ' + EMBEDDED_DATA.length + '</p></div>';
+}
 </script>
 </body>
 </html>
