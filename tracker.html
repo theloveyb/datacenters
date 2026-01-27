@@ -252,20 +252,31 @@
   }
 
   /* ─── Card ──────────────────────────────────────────── */
-  .card {
+  a.card {
+    display: block;
+    text-decoration: none;
+    color: inherit;
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius);
     padding: 20px 24px;
     margin-bottom: 12px;
     transition: all 0.2s;
-    cursor: default;
+    cursor: pointer;
     position: relative;
   }
-  .card:hover {
+  a.card:hover {
     border-color: var(--accent);
     box-shadow: var(--shadow);
     transform: translateY(-1px);
+  }
+  a.card:hover .card-title {
+    color: var(--accent);
+  }
+  .source-link {
+    color: var(--accent);
+    font-weight: 500;
+    font-size: 12px;
   }
   .card::before {
     content: "";
@@ -505,8 +516,10 @@ let EMBEDDED_DATA = [
     "category": "project",
     "subcategory": "groundbreaking",
     "title": "Yondr Group breaks ground on 27 MW Toronto data center",
-    "summary": "Yondr Group held a groundbreaking ceremony for its first Canadian data center \u2014 a 27 MW, three-storey facility on a 4.5-acre site in Toronto. Ready-for-service targeted mid-2026. Features closed-loop cooling (zero water consumption for cooling).",
-    "entities": ["Yondr Group"],
+    "summary": "Yondr Group held a groundbreaking ceremony for its first Canadian data center — a 27 MW, three-storey facility on a 4.5-acre site in Toronto. Ready-for-service targeted mid-2026. Features closed-loop cooling (zero water consumption for cooling).",
+    "entities": [
+      "Yondr Group"
+    ],
     "location": "Toronto",
     "capacity_mw": 27,
     "investment_cad": null,
@@ -520,8 +533,10 @@ let EMBEDDED_DATA = [
     "category": "grid",
     "subcategory": "forecast",
     "title": "IESO Reliability Outlook: 3,600 MW new capacity added since May 2023",
-    "summary": "The IESO released its March 2025 Reliability Outlook, confirming Ontario\u2019s system added over 3,600 MW of new generation capacity since May 2023. System is in a strong reliability position through the rest of this decade. New supply needed for the 2030s and beyond.",
-    "entities": ["IESO"],
+    "summary": "The IESO released its March 2025 Reliability Outlook, confirming Ontario's system added over 3,600 MW of new generation capacity since May 2023. System is in a strong reliability position through the rest of this decade. New supply needed for the 2030s and beyond.",
+    "entities": [
+      "IESO"
+    ],
     "location": "Ontario",
     "capacity_mw": 3600,
     "investment_cad": null,
@@ -536,7 +551,9 @@ let EMBEDDED_DATA = [
     "subcategory": "report",
     "title": "IESO 2025 Annual Planning Outlook: 75% demand growth by 2050",
     "summary": "IESO projects Ontario electricity demand will grow 75% by 2050 (151 TWh to 263 TWh). Data centers forecast to consume 2.5 TWh in 2026 rising to 14 TWh by 2050. At least 16 large data centers expected in service by 2035, accounting for 13% of new demand. Peak demand to increase ~1,000 MW between summer 2025 and summer 2026.",
-    "entities": ["IESO"],
+    "entities": [
+      "IESO"
+    ],
     "location": "Ontario",
     "capacity_mw": null,
     "investment_cad": null,
@@ -549,9 +566,12 @@ let EMBEDDED_DATA = [
     "date": "2025-06-03",
     "category": "legislation",
     "subcategory": "bill-introduced",
-    "title": "Ontario introduces Bill 40 \u2014 Protect Ontario by Securing Affordable Energy for Generations Act",
-    "summary": "Ontario introduces Bill 40, amending the Electricity Act and OEB Act. Key data-center provision (s.28.1): creates an exception to non-discriminatory grid access for \u2018specified load facilities\u2019 including data centers. The Minister of Energy and Mines gains authority to prioritize and approve DC connection requests based on economic benefit. Also adds \u2018economic growth\u2019 mandate for IESO and OEB. Transition: does not apply to connection requests made before June 3, 2025.",
-    "entities": ["Ontario Government", "Minister of Energy and Mines"],
+    "title": "Ontario introduces Bill 40 — Protect Ontario by Securing Affordable Energy for Generations Act",
+    "summary": "Ontario introduces Bill 40, amending the Electricity Act and OEB Act. Key data-center provision (s.28.1): creates an exception to non-discriminatory grid access for 'specified load facilities' including data centers. The Minister of Energy and Mines gains authority to prioritize and approve DC connection requests based on economic benefit. Also adds 'economic growth' mandate for IESO and OEB. Transition: does not apply to connection requests made before June 3, 2025.",
+    "entities": [
+      "Ontario Government",
+      "Minister of Energy and Mines"
+    ],
     "location": "Ontario",
     "capacity_mw": null,
     "investment_cad": null,
@@ -564,9 +584,12 @@ let EMBEDDED_DATA = [
     "date": "2025-06-03",
     "category": "legislation",
     "subcategory": "policy",
-    "title": "Ontario releases \u2018Energy for Generations\u2019 integrated energy plan",
-    "summary": "Companion policy document to Bill 40, setting out Ontario\u2019s plans to address forecast demand growth driven by electrification, housing, and data centers. Outlines the province\u2019s approach to phasing out natural gas by 2035 with plans for solar, wind, batteries, and heat reuse from data centers. 6,500+ MW of DC grid-connection applications disclosed (~30% of Ontario\u2019s 2024 peak demand).",
-    "entities": ["Ontario Government", "IESO"],
+    "title": "Ontario releases 'Energy for Generations' integrated energy plan",
+    "summary": "Companion policy document to Bill 40, setting out Ontario's plans to address forecast demand growth driven by electrification, housing, and data centers. Outlines the province's approach to phasing out natural gas by 2035 with plans for solar, wind, batteries, and heat reuse from data centers. 6,500+ MW of DC grid-connection applications disclosed (~30% of Ontario's 2024 peak demand).",
+    "entities": [
+      "Ontario Government",
+      "IESO"
+    ],
     "location": "Ontario",
     "capacity_mw": 6500,
     "investment_cad": null,
@@ -581,7 +604,10 @@ let EMBEDDED_DATA = [
     "subcategory": "financing",
     "title": "CPP Investments commits C$225M for 54 MW Ontario data center",
     "summary": "Canada Pension Plan Investment Board announced C$225M in construction financing (50% stake alongside Deutsche Bank) for a 54 MW hyperscale data-center expansion in Cambridge, Ontario. The facility is pre-leased to a GPU-focused AI cloud provider.",
-    "entities": ["CPP Investments", "Deutsche Bank"],
+    "entities": [
+      "CPP Investments",
+      "Deutsche Bank"
+    ],
     "location": "Cambridge, Ontario",
     "capacity_mw": 54,
     "investment_cad": 225000000,
@@ -595,8 +621,10 @@ let EMBEDDED_DATA = [
     "category": "legislation",
     "subcategory": "planning",
     "title": "Ontario plans to accelerate data center approvals",
-    "summary": "The Ontario government announced plans to streamline the approval process for data center connections, aiming to cut timelines for grid hookups that currently take 11\u201313 months for conditional approval plus multiple additional years for transmission work. Total lead times for 100+ MW loads in constrained areas can stretch to 5+ years.",
-    "entities": ["Ontario Government"],
+    "summary": "The Ontario government announced plans to streamline the approval process for data center connections, aiming to cut timelines for grid hookups that currently take 11–13 months for conditional approval plus multiple additional years for transmission work. Total lead times for 100+ MW loads in constrained areas can stretch to 5+ years.",
+    "entities": [
+      "Ontario Government"
+    ],
     "location": "Ontario",
     "capacity_mw": null,
     "investment_cad": null,
@@ -611,7 +639,9 @@ let EMBEDDED_DATA = [
     "subcategory": "consultation",
     "title": "Ontario opens regulatory consultation on data center grid connection rules",
     "summary": "Ontario posts Environmental Registry notice seeking stakeholder input on regulations under Bill 40 s.28.1. Key questions: threshold size for covered DCs (e.g., >50 MW), pricing mechanisms for infrastructure cost-sharing by large loads, potential distinct electricity rate class for DCs, and incentives for northern Ontario DC development.",
-    "entities": ["Ontario Government"],
+    "entities": [
+      "Ontario Government"
+    ],
     "location": "Ontario",
     "capacity_mw": null,
     "investment_cad": null,
@@ -625,8 +655,10 @@ let EMBEDDED_DATA = [
     "category": "grid",
     "subcategory": "forecast",
     "title": "IESO Reliability Outlook: system prepared through March 2027",
-    "summary": "The September 2025 Reliability Outlook confirms Ontario\u2019s electricity system is prepared through March 2027. Demand projections slightly lowered compared to previous forecasts due to trade-disruption-driven slower economic growth, but overall long-term trajectory unchanged.",
-    "entities": ["IESO"],
+    "summary": "The September 2025 Reliability Outlook confirms Ontario's electricity system is prepared through March 2027. Demand projections slightly lowered compared to previous forecasts due to trade-disruption-driven slower economic growth, but overall long-term trajectory unchanged.",
+    "entities": [
+      "IESO"
+    ],
     "location": "Ontario",
     "capacity_mw": null,
     "investment_cad": null,
@@ -640,8 +672,10 @@ let EMBEDDED_DATA = [
     "category": "market",
     "subcategory": "report",
     "title": "Toronto DC market hits 312 MW operational, 7.6% vacancy (H1 2025)",
-    "summary": "Market data (CBRE / Goran Brelih analysis) shows Toronto\u2019s operational data-center capacity reached 312 MW with vacancy dropping to 7.6%. Construction pipeline nearly doubled to 236 MW, boosted by a 112 MW project on Langstaff Road in Markham. 360 MW additional capacity in planning stages. Total pipeline: 908 MW.",
-    "entities": ["CBRE"],
+    "summary": "Market data (CBRE / Goran Brelih analysis) shows Toronto's operational data-center capacity reached 312 MW with vacancy dropping to 7.6%. Construction pipeline nearly doubled to 236 MW, boosted by a 112 MW project on Langstaff Road in Markham. 360 MW additional capacity in planning stages. Total pipeline: 908 MW.",
+    "entities": [
+      "CBRE"
+    ],
     "location": "Toronto",
     "capacity_mw": 312,
     "investment_cad": null,
@@ -655,8 +689,10 @@ let EMBEDDED_DATA = [
     "category": "project",
     "subcategory": "announcement",
     "title": "Related Companies planning first NA data center in Ontario",
-    "summary": "New York-based Related Companies (known for Hudson Yards) is planning its first North American data center in Ontario. Site selection in progress. The entry of a major real-estate developer into the DC space signals the asset class\u2019s mainstream appeal.",
-    "entities": ["Related Companies"],
+    "summary": "New York-based Related Companies (known for Hudson Yards) is planning its first North American data center in Ontario. Site selection in progress. The entry of a major real-estate developer into the DC space signals the asset class's mainstream appeal.",
+    "entities": [
+      "Related Companies"
+    ],
     "location": "Ontario",
     "capacity_mw": null,
     "investment_cad": null,
@@ -670,8 +706,11 @@ let EMBEDDED_DATA = [
     "category": "project",
     "subcategory": "announcement",
     "title": "QScale plans multi-billion-dollar AI hyperscale near Toronto",
-    "summary": "Quebec-based QScale received preliminary validation from Hydro One for power at a planned multi-billion-dollar AI hyperscale data center near Toronto. If approved, it would be one of the largest in Canada. QScale is finishing Q01 Phase 3 in L\u00e9vis, QC (142 MW, C$1.2B). Specific GTA site selection in progress.",
-    "entities": ["QScale", "Hydro One"],
+    "summary": "Quebec-based QScale received preliminary validation from Hydro One for power at a planned multi-billion-dollar AI hyperscale data center near Toronto. If approved, it would be one of the largest in Canada. QScale is finishing Q01 Phase 3 in Lévis, QC (142 MW, C$1.2B). Specific GTA site selection in progress.",
+    "entities": [
+      "QScale",
+      "Hydro One"
+    ],
     "location": "Greater Toronto Area",
     "capacity_mw": null,
     "investment_cad": 2000000000,
@@ -685,8 +724,10 @@ let EMBEDDED_DATA = [
     "category": "project",
     "subcategory": "development",
     "title": "Beeches Development pivots Leaside site from life-science to data center",
-    "summary": "A Toronto developer pivoted a planned Leaside (Wicksteed Avenue) project from office/life-science to a 7-storey data center. Existing zoning approvals still apply. Initial capacity 15 MW available now; ideal target of 25 MW but Toronto Hydro needs 5\u20137 years to deliver full power. The existing building will be demolished.",
-    "entities": ["Beeches Development"],
+    "summary": "A Toronto developer pivoted a planned Leaside (Wicksteed Avenue) project from office/life-science to a 7-storey data center. Existing zoning approvals still apply. Initial capacity 15 MW available now; ideal target of 25 MW but Toronto Hydro needs 5–7 years to deliver full power. The existing building will be demolished.",
+    "entities": [
+      "Beeches Development"
+    ],
     "location": "Toronto (Leaside)",
     "capacity_mw": 25,
     "investment_cad": null,
@@ -699,9 +740,11 @@ let EMBEDDED_DATA = [
     "date": "2025-12-09",
     "category": "investment",
     "subcategory": "corporate",
-    "title": "Microsoft announces C$19B Canadian AI investment (2023\u20132027)",
-    "summary": "Microsoft announced its largest-ever Canadian commitment: C$19B total between 2023\u20132027, with C$7.5B earmarked for 2026\u20132027 Azure data-center expansion in Toronto (Canada Central) and Quebec City (Canada East). New capacity begins online H2 2026. Includes GPU additions for AI workloads, a 5-point digital sovereignty plan, a Threat Intelligence Hub in Ottawa, Sovereign AI Landing Zone, and commitment to help 250,000 Canadians earn AI credentials by 2026.",
-    "entities": ["Microsoft"],
+    "title": "Microsoft announces C$19B Canadian AI investment (2023–2027)",
+    "summary": "Microsoft announced its largest-ever Canadian commitment: C$19B total between 2023–2027, with C$7.5B earmarked for 2026–2027 Azure data-center expansion in Toronto (Canada Central) and Quebec City (Canada East). New capacity begins online H2 2026. Includes GPU additions for AI workloads, a 5-point digital sovereignty plan, a Threat Intelligence Hub in Ottawa, Sovereign AI Landing Zone, and commitment to help 250,000 Canadians earn AI credentials by 2026.",
+    "entities": [
+      "Microsoft"
+    ],
     "location": "Toronto / Ontario (Canada Central)",
     "capacity_mw": null,
     "investment_cad": 19000000000,
@@ -714,9 +757,11 @@ let EMBEDDED_DATA = [
     "date": "2025-12-11",
     "category": "legislation",
     "subcategory": "royal-assent",
-    "title": "Bill 40 receives Royal Assent \u2014 now law",
-    "summary": "Bill 40, the Protect Ontario by Securing Affordable Energy for Generations Act, received Royal Assent on December 11, 2025 (Chapter 22, Statutes of Ontario, 2025). Data-center grid-connection rules, economic growth mandates for IESO/OEB, hydrogen support, and foreign participation restrictions are now enacted. Implementation via regulations under the Minister\u2019s new authority pending.",
-    "entities": ["Ontario Government"],
+    "title": "Bill 40 receives Royal Assent — now law",
+    "summary": "Bill 40, the Protect Ontario by Securing Affordable Energy for Generations Act, received Royal Assent on December 11, 2025 (Chapter 22, Statutes of Ontario, 2025). Data-center grid-connection rules, economic growth mandates for IESO/OEB, hydrogen support, and foreign participation restrictions are now enacted. Implementation via regulations under the Minister's new authority pending.",
+    "entities": [
+      "Ontario Government"
+    ],
     "location": "Ontario",
     "capacity_mw": null,
     "investment_cad": null,
@@ -731,7 +776,9 @@ let EMBEDDED_DATA = [
     "subcategory": "forecast",
     "title": "IESO Reliability Outlook: system prepared through June 2027",
     "summary": "December 2025 Reliability Outlook extends the adequacy horizon to June 2027. Lower demand projections versus previous outlooks due to trade-disruption-induced slower economic growth, but data-center demand remains a key growth driver. DC demand projected to grow from 2.5 TWh (2026) to 14 TWh (2050).",
-    "entities": ["IESO"],
+    "entities": [
+      "IESO"
+    ],
     "location": "Ontario",
     "capacity_mw": null,
     "investment_cad": null,
@@ -745,8 +792,10 @@ let EMBEDDED_DATA = [
     "category": "legislation",
     "subcategory": "analysis",
     "title": "Torys LLP publishes key takeaways on Bill 40 implementation",
-    "summary": "Legal analysis outlines next steps for Bill 40 regulations, including forthcoming rules for \u2018specified load facilities\u2019 (data centers), the expected threshold for ministerial approval (likely >50 MW), and the new foreign participation restrictions. Notes that the transition provision protects pre-June 3, 2025 connection requests.",
-    "entities": ["Torys LLP"],
+    "summary": "Legal analysis outlines next steps for Bill 40 regulations, including forthcoming rules for 'specified load facilities' (data centers), the expected threshold for ministerial approval (likely >50 MW), and the new foreign participation restrictions. Notes that the transition provision protects pre-June 3, 2025 connection requests.",
+    "entities": [
+      "Torys LLP"
+    ],
     "location": "Ontario",
     "capacity_mw": null,
     "investment_cad": null,
@@ -761,7 +810,11 @@ let EMBEDDED_DATA = [
     "subcategory": "government",
     "title": "Federal government commits C$240M to Cohere / Bell AI Fabric",
     "summary": "The federal government committed C$240M to support Toronto-based AI startup Cohere in developing AI data centers through the Bell AI Fabric project. The project targets 500 MW of capacity upon full build-out. Part of the broader sovereign AI compute strategy.",
-    "entities": ["Government of Canada", "Cohere", "Bell Canada"],
+    "entities": [
+      "Government of Canada",
+      "Cohere",
+      "Bell Canada"
+    ],
     "location": "Ontario",
     "capacity_mw": 500,
     "investment_cad": 240000000,
@@ -776,7 +829,9 @@ let EMBEDDED_DATA = [
     "subcategory": "government",
     "title": "Federal Budget 2024: C$2.4B for AI compute and safety research",
     "summary": "The 2024 federal budget allocated C$2.4B for AI computing infrastructure and safety research across Canada, part of a broader push for sovereign AI capability.",
-    "entities": ["Government of Canada"],
+    "entities": [
+      "Government of Canada"
+    ],
     "location": "Canada-wide",
     "capacity_mw": null,
     "investment_cad": 2400000000,
@@ -791,7 +846,9 @@ let EMBEDDED_DATA = [
     "subcategory": "government",
     "title": "Federal Fall Economic Statement: C$15B AI DC loan/equity program",
     "summary": "The Fall Economic Statement 2024 proposed up to C$15B in aggregate loan and equity investments for AI data-center projects co-invested by Canadian pension funds (targeting a 2:1 pension-to-government investment ratio). Designed to attract large-scale DC infrastructure investment within Canada.",
-    "entities": ["Government of Canada"],
+    "entities": [
+      "Government of Canada"
+    ],
     "location": "Canada-wide",
     "capacity_mw": null,
     "investment_cad": 15000000000,
@@ -805,8 +862,10 @@ let EMBEDDED_DATA = [
     "category": "project",
     "subcategory": "operational",
     "title": "STACK Infrastructure TOR01A operational in downtown Toronto",
-    "summary": "STACK\u2019s TOR01A data center \u2014 the company\u2019s first international facility \u2014 is operational in downtown Toronto. The 92,000 sq ft facility has 4 MW data halls at N+2 redundancy. Design underway for neighboring 24 MW TOR01B, followed by 24 MW TOR01C.",
-    "entities": ["STACK Infrastructure"],
+    "summary": "STACK's TOR01A data center — the company's first international facility — is operational in downtown Toronto. The 92,000 sq ft facility has 4 MW data halls at N+2 redundancy. Design underway for neighboring 24 MW TOR01B, followed by 24 MW TOR01C.",
+    "entities": [
+      "STACK Infrastructure"
+    ],
     "location": "Toronto",
     "capacity_mw": 52,
     "investment_cad": null,
@@ -820,7 +879,7 @@ let EMBEDDED_DATA = [
     "category": "market",
     "subcategory": "report",
     "title": "Markham 112 MW data center project boosts Toronto suburban pipeline",
-    "summary": "A 112 MW data center project on Langstaff Road in Markham nearly doubled Toronto\u2019s construction pipeline. Development is spreading to suburbs (Markham, Etobicoke, Mississauga, Cambridge) offering larger sites, better power access, and lower costs while staying near Toronto\u2019s talent pool.",
+    "summary": "A 112 MW data center project on Langstaff Road in Markham nearly doubled Toronto's construction pipeline. Development is spreading to suburbs (Markham, Etobicoke, Mississauga, Cambridge) offering larger sites, better power access, and lower costs while staying near Toronto's talent pool.",
     "entities": [],
     "location": "Markham, Ontario",
     "capacity_mw": 112,
@@ -834,9 +893,11 @@ let EMBEDDED_DATA = [
     "date": "2025-04-15",
     "category": "investment",
     "subcategory": "government",
-    "title": "Canada Budget 2025: \u2018Productivity Super-Deduction\u2019 includes DC infrastructure",
-    "summary": "Federal Budget 2025 packages previously announced tax incentives into a \u2018Productivity Super-Deduction\u2019 offering 100% first-year write-off for eligible assets including data network infrastructure, computers, manufacturing/processing machinery, clean energy assets, and a new immediate-expensing provision for manufacturing buildings.",
-    "entities": ["Government of Canada"],
+    "title": "Canada Budget 2025: 'Productivity Super-Deduction' includes DC infrastructure",
+    "summary": "Federal Budget 2025 packages previously announced tax incentives into a 'Productivity Super-Deduction' offering 100% first-year write-off for eligible assets including data network infrastructure, computers, manufacturing/processing machinery, clean energy assets, and a new immediate-expensing provision for manufacturing buildings.",
+    "entities": [
+      "Government of Canada"
+    ],
     "location": "Canada-wide",
     "capacity_mw": null,
     "investment_cad": null,
@@ -849,9 +910,11 @@ let EMBEDDED_DATA = [
     "date": "2023-12-20",
     "category": "project",
     "subcategory": "operational",
-    "title": "AWS launches Canada West (Calgary) region \u2014 no Ontario region announced",
-    "summary": "AWS launched its second Canadian cloud region in Calgary (Canada West). AWS\u2019s only other Canadian region is Montreal (Canada Central, launched 2016). No Ontario/Toronto-specific AWS cloud region has been announced. AWS plans to invest C$24.8B across Canada through 2037.",
-    "entities": ["Amazon Web Services"],
+    "title": "AWS launches Canada West (Calgary) region — no Ontario region announced",
+    "summary": "AWS launched its second Canadian cloud region in Calgary (Canada West). AWS's only other Canadian region is Montreal (Canada Central, launched 2016). No Ontario/Toronto-specific AWS cloud region has been announced. AWS plans to invest C$24.8B across Canada through 2037.",
+    "entities": [
+      "Amazon Web Services"
+    ],
     "location": "Calgary (context: no Ontario region)",
     "capacity_mw": null,
     "investment_cad": 24800000000,
@@ -866,7 +929,9 @@ let EMBEDDED_DATA = [
     "subcategory": "operational",
     "title": "Google Cloud Toronto region launched",
     "summary": "Google Cloud opened its Toronto region (northamerica-northeast2), providing Canadian customers with local data residency and lower latency. Two regions now in Canada: Toronto and Montreal. No major new Toronto-specific expansion announcements since launch.",
-    "entities": ["Google Cloud"],
+    "entities": [
+      "Google Cloud"
+    ],
     "location": "Toronto",
     "capacity_mw": null,
     "investment_cad": null,
@@ -880,8 +945,10 @@ let EMBEDDED_DATA = [
     "category": "market",
     "subcategory": "analysis",
     "title": "Torys LLP: Key challenges connecting data centers in Ontario",
-    "summary": "Detailed legal analysis of Ontario DC grid-connection challenges: Connection Assessment & Approval (CAA) timelines of 11\u201313 months to conditional approval, plus years for transmission work. Total lead times for 100+ MW loads in constrained areas can reach 5+ years. Notes tension between provincial economic growth goals and local infrastructure limits.",
-    "entities": ["Torys LLP"],
+    "summary": "Detailed legal analysis of Ontario DC grid-connection challenges: Connection Assessment & Approval (CAA) timelines of 11–13 months to conditional approval, plus years for transmission work. Total lead times for 100+ MW loads in constrained areas can reach 5+ years. Notes tension between provincial economic growth goals and local infrastructure limits.",
+    "entities": [
+      "Torys LLP"
+    ],
     "location": "Ontario",
     "capacity_mw": null,
     "investment_cad": null,
@@ -895,8 +962,14 @@ let EMBEDDED_DATA = [
     "category": "market",
     "subcategory": "analysis",
     "title": "Global hyperscaler capex forecast to exceed $600B in 2026",
-    "summary": "Hyperscaler capex (Amazon, Alphabet, Microsoft, Meta, Oracle) is forecast to exceed $600B in 2026, up 36% from 2025. Roughly 75% ($450B) directly tied to AI infrastructure. Amazon\u2019s capex alone topped $100B in 2025 and is expected to remain elevated in 2026. Context: competition for Ontario/Toronto DC capacity is driven by this global spend wave.",
-    "entities": ["Amazon", "Alphabet", "Microsoft", "Meta", "Oracle"],
+    "summary": "Hyperscaler capex (Amazon, Alphabet, Microsoft, Meta, Oracle) is forecast to exceed $600B in 2026, up 36% from 2025. Roughly 75% ($450B) directly tied to AI infrastructure. Amazon's capex alone topped $100B in 2025 and is expected to remain elevated in 2026. Context: competition for Ontario/Toronto DC capacity is driven by this global spend wave.",
+    "entities": [
+      "Amazon",
+      "Alphabet",
+      "Microsoft",
+      "Meta",
+      "Oracle"
+    ],
     "location": "Global (Ontario context)",
     "capacity_mw": null,
     "investment_cad": null,
@@ -910,7 +983,7 @@ let EMBEDDED_DATA = [
     "category": "market",
     "subcategory": "report",
     "title": "Canada DC market estimated at $11.46B (2025), projected $22.24B by 2030",
-    "summary": "Market research estimates the Canadian data center market at $11.46B in 2025, growing to $22.24B by 2030. Toronto, Montreal, and Alberta collectively account for 93% of the nation\u2019s total IT load. Toronto\u2019s total inventory: 315 MW (CBRE data), with 153 MW under construction.",
+    "summary": "Market research estimates the Canadian data center market at $11.46B in 2025, growing to $22.24B by 2030. Toronto, Montreal, and Alberta collectively account for 93% of the nation's total IT load. Toronto's total inventory: 315 MW (CBRE data), with 153 MW under construction.",
     "entities": [],
     "location": "Canada-wide (Toronto focus)",
     "capacity_mw": null,
@@ -924,9 +997,11 @@ let EMBEDDED_DATA = [
     "date": "2025-10-01",
     "category": "legislation",
     "subcategory": "analysis",
-    "title": "Torys LLP addendum: connecting data centers in Ontario \u2014 post-consultation update",
+    "title": "Torys LLP addendum: connecting data centers in Ontario — post-consultation update",
     "summary": "Follow-up analysis incorporating the September 2025 regulatory consultation outcomes and evolving IESO requirements. Notes growing complexity of the approval landscape and the pending regulations that will define the threshold, pricing, and process for DC grid connections under Bill 40.",
-    "entities": ["Torys LLP"],
+    "entities": [
+      "Torys LLP"
+    ],
     "location": "Ontario",
     "capacity_mw": null,
     "investment_cad": null,
@@ -941,7 +1016,9 @@ let EMBEDDED_DATA = [
     "subcategory": "analysis",
     "title": "Cassels: Legal landscape of data center development in Canada",
     "summary": "Comprehensive legal overview covering federal and provincial regulatory frameworks affecting DC development: zoning and land-use permitting, environmental reviews, IESO/OEB processes, foreign investment review (Investment Canada Act), and the new Bill 40 framework. Notes that municipal zoning remains a key bottleneck alongside power availability.",
-    "entities": ["Cassels"],
+    "entities": [
+      "Cassels"
+    ],
     "location": "Ontario / Canada",
     "capacity_mw": null,
     "investment_cad": null,
@@ -1146,42 +1223,51 @@ function renderGrid(container, events) {
 }
 
 function createCard(ev) {
-  const card = document.createElement("div");
-  card.className = `card cat-${ev.category}`;
+  var card = document.createElement("a");
+  card.className = "card cat-" + ev.category;
+  if (ev.source_url) {
+    card.href = ev.source_url;
+    card.target = "_blank";
+    card.rel = "noopener";
+  }
 
-  const dateStr = formatDate(ev.date);
-  const catMeta = CATEGORY_META[ev.category] || {};
+  var dateStr = formatDate(ev.date);
+  var catMeta = CATEGORY_META[ev.category] || {};
 
-  let metaItems = "";
+  var metaItems = "";
   if (ev.location) {
-    metaItems += `<span class="meta-item">&#128205; ${esc(ev.location)}</span>`;
+    metaItems += '<span class="meta-item">&#128205; ' + esc(ev.location) + '</span>';
   }
   if (ev.capacity_mw) {
-    metaItems += `<span class="meta-item"><span class="capacity-badge">${ev.capacity_mw.toLocaleString()} MW</span></span>`;
+    metaItems += '<span class="meta-item"><span class="capacity-badge">' + ev.capacity_mw.toLocaleString() + ' MW</span></span>';
   }
   if (ev.investment_cad) {
-    metaItems += `<span class="meta-item"><span class="investment-badge">${formatCAD(ev.investment_cad)}</span></span>`;
+    metaItems += '<span class="meta-item"><span class="investment-badge">' + formatCAD(ev.investment_cad) + '</span></span>';
   }
   if (ev.entities && ev.entities.length > 0) {
-    for (const e of ev.entities) {
-      metaItems += `<span class="entity-tag">${esc(e)}</span>`;
+    for (var i = 0; i < ev.entities.length; i++) {
+      metaItems += '<span class="entity-tag">' + esc(ev.entities[i]) + '</span>';
     }
   }
   if (ev.source_url) {
-    metaItems += `<a href="${esc(ev.source_url)}" target="_blank" rel="noopener">${esc(ev.source_name || "Source")}</a>`;
+    metaItems += '<span class="source-link">' + esc(ev.source_name || "Source") + ' &#8599;</span>';
   }
 
-  card.innerHTML = `
-    <div class="card-top">
-      <span class="card-date">${dateStr}</span>
-      <span class="badge badge-${ev.category}">${esc(catMeta.label || ev.category)}</span>
-      ${ev.subcategory ? `<span class="badge" style="background:var(--surface2);color:var(--text-muted)">${esc(ev.subcategory)}</span>` : ""}
-      <span class="badge-impact ${ev.impact}">${ev.impact}</span>
-    </div>
-    <div class="card-title">${esc(ev.title)}</div>
-    <div class="card-summary">${esc(ev.summary)}</div>
-    <div class="card-meta">${metaItems}</div>
-  `;
+  var subcatBadge = "";
+  if (ev.subcategory) {
+    subcatBadge = '<span class="badge" style="background:var(--surface2);color:var(--text-muted)">' + esc(ev.subcategory) + '</span>';
+  }
+
+  card.innerHTML =
+    '<div class="card-top">' +
+      '<span class="card-date">' + dateStr + '</span>' +
+      '<span class="badge badge-' + ev.category + '">' + esc(catMeta.label || ev.category) + '</span>' +
+      subcatBadge +
+      '<span class="badge-impact ' + ev.impact + '">' + ev.impact + '</span>' +
+    '</div>' +
+    '<div class="card-title">' + esc(ev.title) + '</div>' +
+    '<div class="card-summary">' + esc(ev.summary) + '</div>' +
+    '<div class="card-meta">' + metaItems + '</div>';
   return card;
 }
 
