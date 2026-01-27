@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fiera Capital &mdash; Client Research Brief (Refinancing &mdash; Borrower Side)</title>
+<style>
+  :root {
+    --navy: #0b2545;
+    --dark-blue: #134074;
+    --mid-blue: #1a5276;
+    --accent: #d4a843;
+    --accent-light: #f0d78c;
+    --light-bg: #f4f6f9;
+    --card-bg: #ffffff;
+    --text: #2c3e50;
+    --muted: #7f8c8d;
+    --border: #dce1e8;
+    --green: #27ae60;
+    --red: #c0392b;
+    --orange: #e67e22;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+    background: var(--light-bg);
+    color: var(--text);
+    line-height: 1.6;
+  }
+
+  /* ── Header ── */
+  .header {
+    background: linear-gradient(135deg, var(--navy) 0%, var(--dark-blue) 100%);
+    color: #fff;
+    padding: 32px 48px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .header h1 { font-size: 28px; font-weight: 700; letter-spacing: -0.5px; }
+  .header .subtitle { opacity: 0.8; font-size: 14px; margin-top: 4px; }
+  .header .badge {
+    background: var(--accent);
+    color: var(--navy);
+    padding: 6px 16px;
+    border-radius: 4px;
+    font-weight: 700;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .header-meta { text-align: right; font-size: 13px; opacity: 0.7; }
+
+  /* ── Layout ── */
+  .container { max-width: 1400px; margin: 0 auto; padding: 24px; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+  .full-width { grid-column: 1 / -1; }
+
+  /* ── Cards ── */
+  .card {
+    background: var(--card-bg);
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    padding: 24px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .card h2 {
+    font-size: 15px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--dark-blue);
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--accent);
+  }
+  .card h3 {
+    font-size: 14px;
+    color: var(--mid-blue);
+    margin: 12px 0 6px;
+  }
+
+  /* ── KPI Row ── */
+  .kpi-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; margin-bottom: 24px; }
+  .kpi {
+    background: var(--card-bg);
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .kpi .value { font-size: 28px; font-weight: 700; color: var(--dark-blue); }
+  .kpi .label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; }
+  .kpi .sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+  /* ── Org Chart ── */
+  .org-chart { text-align: center; padding: 16px 0; overflow-x: auto; }
+  .org-node {
+    display: inline-block;
+    border: 2px solid var(--dark-blue);
+    border-radius: 6px;
+    padding: 10px 18px;
+    margin: 4px;
+    font-size: 13px;
+    font-weight: 600;
+    background: #eaf0f7;
+    color: var(--navy);
+    position: relative;
+  }
+  .org-node.parent {
+    background: var(--dark-blue);
+    color: #fff;
+    border-color: var(--navy);
+  }
+  .org-node.highlight {
+    background: var(--accent);
+    color: var(--navy);
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(212,168,67,0.3);
+  }
+  .org-node small { display: block; font-weight: 400; font-size: 11px; opacity: 0.8; }
+  .org-level { margin: 8px 0; }
+  .org-connector { color: var(--dark-blue); font-size: 20px; }
+  .org-row { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px; }
+
+  /* ── Tables ── */
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { text-align: left; padding: 8px 10px; background: #f0f3f7; color: var(--dark-blue); font-weight: 600; border-bottom: 2px solid var(--border); font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+  td { padding: 8px 10px; border-bottom: 1px solid var(--border); }
+  tr:hover td { background: #fafbfc; }
+  .text-right { text-align: right; }
+  .text-center { text-align: center; }
+
+  /* ── Tags ── */
+  .tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .tag-blue { background: #dbeafe; color: #1e40af; }
+  .tag-green { background: #d1fae5; color: #065f46; }
+  .tag-amber { background: #fef3c7; color: #92400e; }
+  .tag-red { background: #fee2e2; color: #991b1b; }
+
+  /* ── Bar Chart ── */
+  .bar-chart { margin: 8px 0; }
+  .bar-row { display: flex; align-items: center; margin: 6px 0; }
+  .bar-label { width: 130px; font-size: 12px; font-weight: 600; flex-shrink: 0; }
+  .bar-track { flex: 1; background: #eef1f5; border-radius: 4px; height: 22px; position: relative; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 4px; display: flex; align-items: center; justify-content: flex-end; padding-right: 8px; font-size: 11px; font-weight: 700; color: #fff; transition: width 0.6s; }
+
+  /* ── Checklist ── */
+  .checklist { list-style: none; }
+  .checklist li { padding: 6px 0; font-size: 13px; border-bottom: 1px solid #f0f2f5; display: flex; align-items: flex-start; gap: 8px; }
+  .checklist li::before { content: ''; width: 14px; height: 14px; border: 2px solid var(--border); border-radius: 3px; flex-shrink: 0; margin-top: 3px; }
+
+  /* ── Timeline ── */
+  .timeline { position: relative; padding-left: 24px; }
+  .timeline::before { content: ''; position: absolute; left: 8px; top: 4px; bottom: 4px; width: 2px; background: var(--border); }
+  .timeline-item { position: relative; margin-bottom: 14px; }
+  .timeline-item::before { content: ''; position: absolute; left: -20px; top: 6px; width: 10px; height: 10px; border-radius: 50%; background: var(--dark-blue); border: 2px solid #fff; }
+  .timeline-date { font-size: 11px; color: var(--muted); font-weight: 600; }
+  .timeline-text { font-size: 13px; }
+
+  /* ── Footer ── */
+  .footer {
+    margin-top: 32px;
+    padding: 20px 24px;
+    background: #fff;
+    border-top: 1px solid var(--border);
+    font-size: 11px;
+    color: var(--muted);
+    text-align: center;
+    line-height: 1.8;
+  }
+  .footer a { color: var(--dark-blue); }
+
+  /* ── Notes ── */
+  .note {
+    background: #fffbeb;
+    border-left: 4px solid var(--accent);
+    padding: 12px 16px;
+    font-size: 13px;
+    margin-top: 12px;
+    border-radius: 0 4px 4px 0;
+  }
+  .note strong { color: var(--navy); }
+
+  .alert-box {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 6px;
+    padding: 14px 18px;
+    font-size: 13px;
+    margin-bottom: 16px;
+  }
+  .alert-box strong { color: var(--red); }
+
+  .info-box {
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    border-radius: 6px;
+    padding: 14px 18px;
+    font-size: 13px;
+    margin-bottom: 16px;
+  }
+  .info-box strong { color: var(--dark-blue); }
+
+  ul.plain { list-style: none; padding: 0; }
+  ul.plain li { padding: 4px 0; font-size: 13px; }
+  ul.plain li::before { content: '\2022'; color: var(--accent); font-weight: bold; display: inline-block; width: 14px; }
+
+  @media (max-width: 900px) {
+    .grid-2, .grid-3 { grid-template-columns: 1fr; }
+    .kpi-row { grid-template-columns: repeat(2, 1fr); }
+    .header { padding: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════ HEADER ════════════════════════ -->
+<div class="header">
+  <div>
+    <h1>Fiera Capital Corporation / Fiera Real Estate</h1>
+    <div class="subtitle">Client Research Brief &mdash; Refinancing (Borrower Side)</div>
+  </div>
+  <div style="text-align:right;">
+    <div class="badge">Privileged &amp; Confidential</div>
+    <div class="header-meta" style="margin-top:8px;">Prepared: January 2026<br>TSX: FSZ &bull; HQ: Montr&eacute;al, QC</div>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- ════════════════════════ KPIs ════════════════════════ -->
+<div class="kpi-row">
+  <div class="kpi">
+    <div class="value">C$166.9B</div>
+    <div class="label">Total AUM (Parent)</div>
+    <div class="sub">As at Sept 30, 2025</div>
+  </div>
+  <div class="kpi">
+    <div class="value">C$10.2B+</div>
+    <div class="label">RE AUM (Global)</div>
+    <div class="sub">Fiera Real Estate</div>
+  </div>
+  <div class="kpi">
+    <div class="value">~C$4.9B</div>
+    <div class="label">CORE Fund AUM</div>
+    <div class="sub">Pan-Canadian Strategy</div>
+  </div>
+  <div class="kpi">
+    <div class="value">C$5.5B+</div>
+    <div class="label">RE Loans Originated</div>
+    <div class="sub">Since 2006 (Debt Strategy)</div>
+  </div>
+  <div class="kpi">
+    <div class="value">90+</div>
+    <div class="label">RE Employees</div>
+    <div class="sub">North America &amp; Europe</div>
+  </div>
+</div>
+
+<!-- ════════════════════════ CORPORATE STRUCTURE ════════════════════════ -->
+<div class="card full-width" style="margin-bottom:20px;">
+  <h2>Corporate &amp; Entity Structure</h2>
+  <div class="org-chart">
+    <div class="org-level">
+      <div class="org-node parent">
+        Fiera Capital Corporation
+        <small>TSX: FSZ &bull; Ontario Corp &bull; HQ: Montr&eacute;al</small>
+      </div>
+    </div>
+    <div class="org-connector">&#9475;</div>
+    <div class="org-level">
+      <div class="org-row">
+        <div class="org-node">Fiera Capital Canada<small>Institutional / Private Wealth / Retail</small></div>
+        <div class="org-node">Fiera Capital USA<small>SEC-Registered (Fiera Capital Inc.)</small></div>
+        <div class="org-node">Fiera Capital EMEA<small>FCA-Authorized (UK)</small></div>
+        <div class="org-node">Fiera Capital Asia<small>MAS-Licensed (Singapore)</small></div>
+      </div>
+    </div>
+    <div class="org-connector">&#9475;</div>
+    <div class="org-level" style="margin-bottom:4px;font-size:12px;color:var(--muted);font-weight:600;">PRIVATE MARKETS PLATFORMS</div>
+    <div class="org-level">
+      <div class="org-row">
+        <div class="org-node highlight">
+          Fiera Real Estate Investments Ltd.
+          <small>Ontario Corp (QC Inc. #1168130954) &bull; 200 Bay St, Toronto</small>
+        </div>
+        <div class="org-node">Fiera Infrastructure<small>Infrastructure Equity</small></div>
+        <div class="org-node">Fiera Private Debt<small>Corporate Lending</small></div>
+        <div class="org-node">Fiera Comox<small>Agriculture &amp; Natural Capital</small></div>
+      </div>
+    </div>
+    <div class="org-connector">&#9475;</div>
+    <div class="org-level" style="margin-bottom:4px;font-size:12px;color:var(--muted);font-weight:600;">FIERA REAL ESTATE &mdash; FUND VEHICLES</div>
+    <div class="org-level">
+      <div class="org-row">
+        <div class="org-node highlight">CORE Fund<small>Open-End &bull; ~C$4.9B AUM</small></div>
+        <div class="org-node">Industrial Fund<small>Open-End &bull; Sm/Med Bay</small></div>
+        <div class="org-node">Development Fund(s)<small>Closed-End &bull; Value-Add</small></div>
+        <div class="org-node">Canadian RE Debt Fund L.P.<small>Open-End &bull; ~C$800M+ AUM</small></div>
+        <div class="org-node">Mezzanine Fund<small>FSRA Lic. #12933 (ON)</small></div>
+        <div class="org-node">RE (UK/Europe)<small>&pound;2.5B AUM &bull; London HQ</small></div>
+      </div>
+    </div>
+  </div>
+  <div class="note">
+    <strong>Key for Refinancing:</strong> The borrowing entity will likely be a single-purpose entity (SPE) or nominee subsidiary of <strong>Fiera Real Estate Investments Limited</strong> or the relevant fund vehicle (e.g., the CORE Fund LP). Confirm the exact borrower entity, its constating documents (articles of incorporation / LP agreement), and any fund-level borrowing restrictions or LTV covenants during due diligence.
+  </div>
+</div>
+
+<!-- ════════════════════════ TWO COLUMN: ENTITY DETAILS + KEY PEOPLE ════════════════════════ -->
+<div class="grid-2" style="margin-bottom:20px;">
+
+  <!-- Entity Details -->
+  <div class="card">
+    <h2>Legal Entity &mdash; Key Details</h2>
+    <table>
+      <tr><td style="font-weight:600;width:180px;">Full Legal Name</td><td>Fiera Real Estate Investments Limited</td></tr>
+      <tr><td style="font-weight:600;">Incorporation</td><td>QC Corp #1168130954 (March 29, 2012)</td></tr>
+      <tr><td style="font-weight:600;">Registered Address</td><td>3800 &ndash; 200 Bay Street, Toronto, ON M5J 2J1</td></tr>
+      <tr><td style="font-weight:600;">Parent</td><td>Fiera Capital Corporation (wholly owned)</td></tr>
+      <tr><td style="font-weight:600;">Parent Ticker</td><td>TSX: FSZ</td></tr>
+      <tr><td style="font-weight:600;">Parent HQ</td><td>1981 McGill College Ave, Montr&eacute;al, QC</td></tr>
+      <tr><td style="font-weight:600;">ON Registrations</td><td>Portfolio Manager, Exempt Market Dealer, Commodity Trading Manager, Investment Fund Manager</td></tr>
+      <tr><td style="font-weight:600;">Mortgage Brokerage</td><td>Fiera RE Debt Strategies Ltd. &mdash; FSRA Lic. #12933 (ON)</td></tr>
+    </table>
+    <div class="note" style="margin-top:12px;">
+      <strong>Due Diligence Step:</strong> Obtain a corporate profile report from the Ontario / Quebec corporate registry and confirm the authorized signatories for the borrowing entity before closing.
+    </div>
+  </div>
+
+  <!-- Key People -->
+  <div class="card">
+    <h2>Key Personnel</h2>
+    <h3>Fiera Capital Corporation (Parent)</h3>
+    <table>
+      <tr><td style="font-weight:600;width:170px;">Jean-Guy Desjardins</td><td>Founder &amp; Executive Chair</td></tr>
+      <tr><td style="font-weight:600;">Maxime M&eacute;nard</td><td>Global President &amp; CEO (eff. July 2025)</td></tr>
+      <tr><td style="font-weight:600;">Lucas Pontillo</td><td>Global CFO &amp; Head of Corporate Strategy</td></tr>
+      <tr><td style="font-weight:600;">Gabriel Castiglio</td><td>Global COO</td></tr>
+    </table>
+    <h3>Fiera Real Estate</h3>
+    <table>
+      <tr><td style="font-weight:600;width:170px;">Wenzel Hoberg</td><td>Global Head of Real Estate (Toronto)</td></tr>
+      <tr><td style="font-weight:600;">Pierre Pelletier</td><td>Sr. Managing Director &mdash; RE Development &amp; Financing (Canada)</td></tr>
+      <tr><td style="font-weight:600;">Martin Saulnier</td><td>Head of Real Estate Debt</td></tr>
+      <tr><td style="font-weight:600;">Quinntin Fong</td><td>SVP &amp; Fund Manager, Industrial Fund</td></tr>
+      <tr><td style="font-weight:600;">Kailey MacKenzie</td><td>VP, Investments (Acquisitions &amp; Dispositions)</td></tr>
+      <tr><td style="font-weight:600;">Blair McCreadie</td><td>SVP &amp; Fund Manager</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ════════════════════════ CORE FUND DEEP DIVE ════════════════════════ -->
+<div class="card full-width" style="margin-bottom:20px;">
+  <h2>CORE Fund &mdash; Profile (Likely Refinancing Vehicle)</h2>
+  <div class="grid-3" style="gap:24px;">
+
+    <div>
+      <h3>Fund Snapshot</h3>
+      <table>
+        <tr><td style="font-weight:600;">Strategy AUM</td><td class="text-right">~C$4,873M</td></tr>
+        <tr><td style="font-weight:600;">Inception</td><td class="text-right">June 28, 2013</td></tr>
+        <tr><td style="font-weight:600;">Structure</td><td class="text-right">Open-End</td></tr>
+        <tr><td style="font-weight:600;">Target Return</td><td class="text-right">6.0% &ndash; 8.0%</td></tr>
+        <tr><td style="font-weight:600;">Debt Policy</td><td class="text-right"><span class="tag tag-green">Low Leverage</span></td></tr>
+        <tr><td style="font-weight:600;">Geography</td><td class="text-right">Pan-Canadian</td></tr>
+        <tr><td style="font-weight:600;">ESG</td><td class="text-right">GRESB Green Star; NZAM signatory</td></tr>
+      </table>
+    </div>
+
+    <div>
+      <h3>Sector Allocation</h3>
+      <div class="bar-chart">
+        <div class="bar-row">
+          <span class="bar-label">Industrial</span>
+          <div class="bar-track"><div class="bar-fill" style="width:43.5%;background:var(--dark-blue);">43.5%</div></div>
+        </div>
+        <div class="bar-row">
+          <span class="bar-label">Multi-Residential</span>
+          <div class="bar-track"><div class="bar-fill" style="width:28%;background:var(--mid-blue);">~28%</div></div>
+        </div>
+        <div class="bar-row">
+          <span class="bar-label">Retail</span>
+          <div class="bar-track"><div class="bar-fill" style="width:16%;background:var(--accent);">~16%</div></div>
+        </div>
+        <div class="bar-row">
+          <span class="bar-label">Office</span>
+          <div class="bar-track"><div class="bar-fill" style="width:13%;background:#7f8c8d;">~13%</div></div>
+        </div>
+      </div>
+      <div style="font-size:11px;color:var(--muted);margin-top:4px;">Note: Multi-res, retail, and office splits are estimated from available disclosures.</div>
+    </div>
+
+    <div>
+      <h3>Known Portfolio Activity</h3>
+      <div class="timeline">
+        <div class="timeline-item">
+          <div class="timeline-date">2025</div>
+          <div class="timeline-text">Calgary Quarry Park &mdash; 3 multi-res rental assets acquired</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">2025</div>
+          <div class="timeline-text">Calgary Marda Loop &mdash; 123-unit rental + ground-floor retail</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">2024</div>
+          <div class="timeline-text">Brantford, ON &mdash; 944K SF industrial portfolio (5 assets, split with Industrial Fund)</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">2024</div>
+          <div class="timeline-text">450 March Road &mdash; Zero Carbon Building certification</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">2023</div>
+          <div class="timeline-text">800K+ SF LED retrofit (Alberta); largest rooftop solar project in Canada</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">2013</div>
+          <div class="timeline-text">CORE Fund inception</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="note" style="margin-top:16px;">
+    <strong>Refinancing Relevance:</strong> The CORE Fund operates a <strong>low-leverage policy</strong>, which signals conservative debt usage. Any refinancing will likely comply with strict LTV covenants (typically &le;50% for core strategies). Confirm the specific property/properties being refinanced and any existing first-mortgage encumbrances, then cross-reference against the fund&rsquo;s borrowing limits in its constating documents.
+  </div>
+</div>
+
+<!-- ════════════════════════ PARENT FINANCIALS + DEBT OVERVIEW ════════════════════════ -->
+<div class="grid-2" style="margin-bottom:20px;">
+
+  <div class="card">
+    <h2>Parent Financial Snapshot (FSZ)</h2>
+    <table>
+      <tr><th>Metric</th><th class="text-right">Value</th><th class="text-right">Period</th></tr>
+      <tr><td>Total AUM</td><td class="text-right">C$166.9B</td><td class="text-right">Q3 2025</td></tr>
+      <tr><td>Private Markets AUM</td><td class="text-right">~C$20B</td><td class="text-right">YE 2024</td></tr>
+      <tr><td>Total Revenue</td><td class="text-right">~C$676M</td><td class="text-right">FY 2024</td></tr>
+      <tr><td>Net Interest Expense</td><td class="text-right">~C$51M</td><td class="text-right">FY 2024</td></tr>
+      <tr><td>Adj. EBITDA Margin</td><td class="text-right">&gt;30%</td><td class="text-right">Q3 2024</td></tr>
+      <tr><td>Net Debt Ratio</td><td class="text-right">&lt;3.0x</td><td class="text-right">Q3 2024</td></tr>
+      <tr><td>Market Cap</td><td class="text-right">~C$500M</td><td class="text-right">Sept 2025</td></tr>
+      <tr><td>Share Price</td><td class="text-right">C$4.68</td><td class="text-right">Sept 2025</td></tr>
+      <tr><td>Employees (Total)</td><td class="text-right">~891</td><td class="text-right">2025</td></tr>
+    </table>
+    <div class="info-box" style="margin-top:12px;">
+      <strong>Note:</strong> The parent entity Fiera Capital Corp. redeemed its 8.25% Senior Subordinated Unsecured Debentures due Dec 31, 2026. The net debt ratio was reduced to below 3x as of Q3 2024. Full audited financials available on <a href="https://www.sedarplus.ca" target="_blank">SEDAR+</a>.
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>AUM Trend &mdash; Fiera Capital Corp.</h2>
+    <div style="padding: 16px 0;">
+      <svg viewBox="0 0 500 220" style="width:100%;max-width:500px;display:block;margin:auto;">
+        <!-- Grid lines -->
+        <line x1="60" y1="20" x2="60" y2="180" stroke="#e0e0e0" stroke-width="1"/>
+        <line x1="60" y1="180" x2="480" y2="180" stroke="#e0e0e0" stroke-width="1"/>
+        <line x1="60" y1="140" x2="480" y2="140" stroke="#f0f0f0" stroke-width="1" stroke-dasharray="4"/>
+        <line x1="60" y1="100" x2="480" y2="100" stroke="#f0f0f0" stroke-width="1" stroke-dasharray="4"/>
+        <line x1="60" y1="60" x2="480" y2="60" stroke="#f0f0f0" stroke-width="1" stroke-dasharray="4"/>
+        <line x1="60" y1="20" x2="480" y2="20" stroke="#f0f0f0" stroke-width="1" stroke-dasharray="4"/>
+
+        <!-- Y-axis labels -->
+        <text x="55" y="184" text-anchor="end" font-size="10" fill="#7f8c8d">0</text>
+        <text x="55" y="144" text-anchor="end" font-size="10" fill="#7f8c8d">50B</text>
+        <text x="55" y="104" text-anchor="end" font-size="10" fill="#7f8c8d">100B</text>
+        <text x="55" y="64" text-anchor="end" font-size="10" fill="#7f8c8d">150B</text>
+        <text x="55" y="24" text-anchor="end" font-size="10" fill="#7f8c8d">200B</text>
+
+        <!-- Data area (gradient fill) -->
+        <defs>
+          <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#134074" stop-opacity="0.3"/>
+            <stop offset="100%" stop-color="#134074" stop-opacity="0.02"/>
+          </linearGradient>
+        </defs>
+        <!-- Area: points correspond to AUM values -->
+        <!-- 2012:~27B  2014:~90B  2016:~120B  2018:~145B  2020:~170B  2022:~160B  Q1-25:~162B  Q3-25:~167B -->
+        <polygon points="90,159 160,108 230,84 300,64 370,44 410,54 440,51 470,47 470,180 90,180"
+                 fill="url(#areaGrad)"/>
+        <polyline points="90,159 160,108 230,84 300,64 370,44 410,54 440,51 470,47"
+                  fill="none" stroke="#134074" stroke-width="2.5" stroke-linejoin="round"/>
+
+        <!-- Data points -->
+        <circle cx="90" cy="159" r="4" fill="#134074"/>
+        <circle cx="160" cy="108" r="4" fill="#134074"/>
+        <circle cx="230" cy="84" r="4" fill="#134074"/>
+        <circle cx="300" cy="64" r="4" fill="#134074"/>
+        <circle cx="370" cy="44" r="4" fill="#134074"/>
+        <circle cx="410" cy="54" r="3.5" fill="#c0392b"/>
+        <circle cx="440" cy="51" r="3.5" fill="#134074"/>
+        <circle cx="470" cy="47" r="5" fill="#d4a843" stroke="#134074" stroke-width="2"/>
+
+        <!-- Point labels -->
+        <text x="90" y="153" text-anchor="middle" font-size="9" fill="#2c3e50" font-weight="600">27B</text>
+        <text x="160" y="102" text-anchor="middle" font-size="9" fill="#2c3e50" font-weight="600">90B</text>
+        <text x="230" y="78" text-anchor="middle" font-size="9" fill="#2c3e50" font-weight="600">120B</text>
+        <text x="300" y="58" text-anchor="middle" font-size="9" fill="#2c3e50" font-weight="600">145B</text>
+        <text x="370" y="38" text-anchor="middle" font-size="9" fill="#2c3e50" font-weight="600">170B</text>
+        <text x="410" y="48" text-anchor="middle" font-size="9" fill="#c0392b" font-weight="600">162B</text>
+        <text x="470" y="41" text-anchor="middle" font-size="9" fill="#d4a843" font-weight="700">167B</text>
+
+        <!-- X-axis labels -->
+        <text x="90"  y="198" text-anchor="middle" font-size="10" fill="#7f8c8d">2012</text>
+        <text x="160" y="198" text-anchor="middle" font-size="10" fill="#7f8c8d">2014</text>
+        <text x="230" y="198" text-anchor="middle" font-size="10" fill="#7f8c8d">2016</text>
+        <text x="300" y="198" text-anchor="middle" font-size="10" fill="#7f8c8d">2018</text>
+        <text x="370" y="198" text-anchor="middle" font-size="10" fill="#7f8c8d">2020</text>
+        <text x="410" y="198" text-anchor="middle" font-size="10" fill="#c0392b">Q1'25</text>
+        <text x="470" y="198" text-anchor="middle" font-size="10" fill="#d4a843" font-weight="700">Q3'25</text>
+
+        <!-- Title -->
+        <text x="270" y="215" text-anchor="middle" font-size="10" fill="#7f8c8d">Fiera Capital Corp. &mdash; Total AUM (C$)</text>
+      </svg>
+    </div>
+    <div style="font-size:11px;color:var(--muted);text-align:center;">
+      Q1 2025 dip reflects a one-time $5.7B equity mandate outflow (Canoe &rarr; PineStone). Rebounded by Q3 2025.
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════ REAL ESTATE DEBT PLATFORM + REGISTRATIONS ════════════════════════ -->
+<div class="grid-2" style="margin-bottom:20px;">
+  <div class="card">
+    <h2>RE Debt Platform (Context for Refinancing)</h2>
+    <div class="info-box">
+      <strong>Why This Matters:</strong> Fiera operates on <em>both</em> sides of real estate debt &mdash; as a lender (via the Canadian RE Debt Fund &amp; Mezzanine Fund) and as a borrower (through its equity fund vehicles like the CORE Fund). This sophistication means the client will have experienced in-house counsel familiar with loan documentation.
+    </div>
+    <table>
+      <tr><th>Metric</th><th class="text-right">Detail</th></tr>
+      <tr><td>Total RE Loans Originated</td><td class="text-right">C$5.5B+ (since 2006)</td></tr>
+      <tr><td>RE Debt Fund AUM</td><td class="text-right">~C$800M (as at June 2024)</td></tr>
+      <tr><td>Target Capitalization</td><td class="text-right">C$1.5B (growth target)</td></tr>
+      <tr><td>Avg Net Annual Return</td><td class="text-right">7.91% (since inception)</td></tr>
+      <tr><td>Fund Structure</td><td class="text-right">Open-End Limited Partnership</td></tr>
+      <tr><td>ON Mortgage Lic.</td><td class="text-right">FSRA #12933 (Fiera RE Debt Strategies Ltd.)</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Regulatory Registrations (Canada)</h2>
+    <table>
+      <tr><th>Registration</th><th>Jurisdiction</th></tr>
+      <tr><td>Portfolio Manager</td><td>All provinces &amp; territories</td></tr>
+      <tr><td>Exempt Market Dealer</td><td>All provinces &amp; territories</td></tr>
+      <tr><td>Investment Fund Manager</td><td>QC, ON, NL</td></tr>
+      <tr><td>Commodity Trading Manager</td><td>Ontario (CFA)</td></tr>
+      <tr><td>Derivatives Portfolio Manager</td><td>Qu&eacute;bec</td></tr>
+      <tr><td>Adviser</td><td>Manitoba</td></tr>
+      <tr><td>Mortgage Brokerage (FSRA)</td><td>Ontario (#12933)</td></tr>
+    </table>
+    <h3 style="margin-top:16px;">International</h3>
+    <table>
+      <tr><td>Fiera Capital (UK) Limited</td><td>FCA-Authorized (UK) + FINMA (Switzerland, May 2024)</td></tr>
+      <tr><td>Fiera Capital Inc. (US)</td><td>SEC-Registered Investment Adviser (NYC)</td></tr>
+      <tr><td>Fiera Capital Asia (Singapore)</td><td>MAS-Licensed (Capital Markets Services)</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ════════════════════════ ACQUISITION HISTORY ════════════════════════ -->
+<div class="card full-width" style="margin-bottom:20px;">
+  <h2>Growth Through Acquisition &mdash; Key Milestones</h2>
+  <table>
+    <tr><th style="width:80px;">Year</th><th>Event</th><th class="text-right">Impact</th></tr>
+    <tr><td>2003</td><td>Fiera International spun off Elantis from Desjardins Group to form Fiera Capital</td><td class="text-right">&mdash;</td></tr>
+    <tr><td>2010</td><td>Merged with Sceptre Investment Counsel &rarr; listed on TSX as Fiera Sceptre</td><td class="text-right">TSX listing</td></tr>
+    <tr><td>2012</td><td>Acquired Natcan Investment Management from National Bank of Canada</td><td class="text-right">C$309.5M; AUM ~doubled to C$54B</td></tr>
+    <tr><td>2012</td><td><strong>Fiera Real Estate Investments Limited incorporated (March 29)</strong></td><td class="text-right">RE platform launch</td></tr>
+    <tr><td>2013</td><td>Acquired Bel Air Investment Advisors + Wilkinson O&rsquo;Grady (first US deals)</td><td class="text-right">C$156.3M</td></tr>
+    <tr><td>2013</td><td>CORE Fund inception (June 28)</td><td class="text-right">Core RE strategy</td></tr>
+    <tr><td>2016</td><td>Acquired Apex Capital Management (Ohio) + Charlemagne Capital (London)</td><td class="text-right">US$145M + European platform</td></tr>
+    <tr><td>2018</td><td>Acquired Clearwater Capital Partners (Hong Kong)</td><td class="text-right">Asia expansion</td></tr>
+    <tr><td>2024</td><td>Canadian RE Debt Fund opened to external investors (Oct 1)</td><td class="text-right">Target: C$1.5B</td></tr>
+    <tr><td>2025</td><td>C$800M+ invested into Canadian Built Opportunities Platform (infra + RE, split equally)</td><td class="text-right">+$800M Private Markets AUM</td></tr>
+  </table>
+</div>
+
+<!-- ════════════════════════ REFINANCING CHECKLIST ════════════════════════ -->
+<div class="card full-width" style="margin-bottom:20px;">
+  <h2>Refinancing Due Diligence &mdash; Associate Checklist</h2>
+  <div class="alert-box">
+    <strong>Reminder:</strong> Fiera Real Estate is the <strong>borrower</strong> in this refinancing. The items below are oriented toward acting for the borrower, not the lender.
+  </div>
+  <div class="grid-2" style="gap:24px;">
+    <div>
+      <h3>Entity &amp; Authorization</h3>
+      <ul class="checklist">
+        <li>Confirm exact borrowing entity (SPE, LP, or Fiera RE Investments Ltd. directly)</li>
+        <li>Obtain corporate profile report (ON/QC registry) for borrower entity</li>
+        <li>Review constating documents (articles / LP agreement) for borrowing powers</li>
+        <li>Obtain board / GP resolution authorizing the refinancing and signing officers</li>
+        <li>Confirm no change-of-control or assignment-of-interest restrictions in existing mortgage</li>
+        <li>Check if parent guarantee (Fiera Capital Corp.) is required by lender</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Loan &amp; Security</h3>
+      <ul class="checklist">
+        <li>Review existing mortgage / charge &mdash; confirm outstanding balance and maturity</li>
+        <li>Obtain discharge statement from existing lender (if full refinance)</li>
+        <li>Review fund-level LTV / borrowing covenants (CORE Fund: low-leverage policy)</li>
+        <li>Confirm property title &mdash; subsearch / title insurance requirements</li>
+        <li>Review survey, environmental (Phase I/II), and zoning compliance</li>
+        <li>Check for existing subordinate financing (mezz, PACE, etc.)</li>
+        <li>Review any intercreditor or co-ownership agreements</li>
+        <li>Confirm PPSA registrations and any existing security interests</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Property &amp; Tenant</h3>
+      <ul class="checklist">
+        <li>Obtain rent roll and estoppel certificates from major tenants</li>
+        <li>Review material leases &mdash; assignment / subordination provisions</li>
+        <li>Confirm insurance coverage meets lender requirements</li>
+        <li>Confirm property tax status (current / arrears)</li>
+        <li>Review property management agreement (any lender-consent triggers)</li>
+        <li>Check municipal compliance &mdash; building permits, occupancy certificates</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Closing &amp; Post-Closing</h3>
+      <ul class="checklist">
+        <li>Prepare borrower&rsquo;s certificate (reps &amp; warranties, no default)</li>
+        <li>Review lender&rsquo;s commitment letter / term sheet for all conditions precedent</li>
+        <li>Coordinate discharge of existing mortgage (timing with new advance)</li>
+        <li>Prepare opinion letter (capacity, authorization, enforceability, real property)</li>
+        <li>Register new charge / mortgage on title (Teraview in Ontario)</li>
+        <li>File PPSA financing change statements as needed</li>
+        <li>Confirm compliance with ESG / sustainability covenants if applicable</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════ ESG SNAPSHOT ════════════════════════ -->
+<div class="card full-width" style="margin-bottom:20px;">
+  <h2>ESG &amp; Sustainability Profile</h2>
+  <div class="grid-3">
+    <div>
+      <h3>Commitments</h3>
+      <ul class="plain">
+        <li>Net Zero Asset Managers (NZAM) signatory</li>
+        <li>2040 Net Zero Carbon target</li>
+        <li>GRESB Green Star status (multiple funds)</li>
+        <li>IPE Top 150 RE Investment Managers (4th consecutive year, 2023)</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Certifications</h3>
+      <ul class="plain">
+        <li>Zero Carbon Building &mdash; 450 March Road</li>
+        <li>LEED&reg; certifications (multiple properties)</li>
+        <li>BREEAM&reg; Excellent ratings (UK portfolio)</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Initiatives</h3>
+      <ul class="plain">
+        <li>Largest rooftop solar project in Canada (~1.96M kWh/year)</li>
+        <li>800K+ SF LED lighting retrofits (Alberta, 2023)</li>
+        <li>Additional 900K SF LED retrofits planned (2024)</li>
+        <li>~1,470 tonnes/year GHG reduction from solar</li>
+      </ul>
+    </div>
+  </div>
+  <div class="note" style="margin-top:12px;">
+    <strong>Relevance:</strong> Green loan / sustainability-linked loan structures may be available given the client&rsquo;s strong ESG profile. Some lenders offer margin reductions (5&ndash;15 bps) for ESG-qualified borrowers. Worth exploring with the lender.
+  </div>
+</div>
+
+<!-- ════════════════════════ SOURCES ════════════════════════ -->
+<div class="card full-width">
+  <h2>Sources &amp; Further Reading</h2>
+  <table>
+    <tr><th>Source</th><th>URL</th></tr>
+    <tr><td>Fiera Capital &mdash; Investor Relations</td><td><a href="https://ir.fieracapital.com/" target="_blank">ir.fieracapital.com</a></td></tr>
+    <tr><td>Fiera Capital &mdash; 2024 Annual Report (PDF)</td><td><a href="https://ir.fieracapital.com/annual-report/2024/data/Fiera-Capital-2024-Annual-Report.pdf" target="_blank">2024 Annual Report</a></td></tr>
+    <tr><td>Fiera Capital &mdash; Q3 2025 Results</td><td><a href="https://www.fieracapital.com/en/press-releases/press-release-123022" target="_blank">Press Release</a></td></tr>
+    <tr><td>Fiera Real Estate Canada</td><td><a href="https://www.fierarealestate.ca/" target="_blank">fierarealestate.ca</a></td></tr>
+    <tr><td>Fiera RE CORE Fund Overview (Q1 2025 PDF)</td><td><a href="https://www.fieraimmobilier.ca/wp-content/uploads/2025/05/Fiera-Real-Estate-CORE-Fund-Overview-EN.pdf" target="_blank">CORE Fund PDF</a></td></tr>
+    <tr><td>Fiera Canadian RE Debt Fund L.P. Announcement</td><td><a href="https://www.fieracapital.com/en-ca/press-releases/press-release-122993/" target="_blank">Press Release (Oct 2024)</a></td></tr>
+    <tr><td>Fiera Capital &mdash; Registrations &amp; Exemptions</td><td><a href="https://www.fieracapital.com/en/registrations-and-exemptions" target="_blank">Registrations Page</a></td></tr>
+    <tr><td>SEDAR+ (Financial Filings)</td><td><a href="https://www.sedarplus.ca" target="_blank">sedarplus.ca</a></td></tr>
+    <tr><td>Ontario Securities Commission &mdash; Fiera Capital</td><td><a href="https://www.osc.ca/en/securities-law/orders-rulings-decisions/fiera-capital-corporation-4" target="_blank">OSC Decision</a></td></tr>
+    <tr><td>B2B Hint &mdash; Fiera RE Investments Ltd.</td><td><a href="https://b2bhint.com/en/company/ca-qc/fiera-real-estate-investments-limited--1168130954" target="_blank">Entity Profile</a></td></tr>
+  </table>
+</div>
+
+</div><!-- /container -->
+
+<!-- ════════════════════════ FOOTER ════════════════════════ -->
+<div class="footer">
+  <strong>Disclaimer:</strong> This brief is based on publicly available information only (press releases, regulatory filings, corporate websites, and public registries) and is current as of January 2026.
+  It does not constitute legal advice. All figures should be independently verified against primary sources (SEDAR+, corporate registry filings, and client-provided documents) before reliance.
+  <br>Prepared for internal use only. Do not distribute externally.
+</div>
+
+</body>
+</html>
