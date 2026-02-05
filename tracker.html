@@ -1,0 +1,1380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ontario & Toronto AI Data Center Tracker</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #242733;
+    --border: #2e3140;
+    --text: #e4e6ed;
+    --text-muted: #8b8fa3;
+    --accent: #6c72ff;
+    --accent-dim: rgba(108,114,255,0.15);
+    --red: #ff5c72;
+    --red-dim: rgba(255,92,114,0.12);
+    --green: #2dd4a8;
+    --green-dim: rgba(45,212,168,0.12);
+    --gold: #f5a623;
+    --gold-dim: rgba(245,166,35,0.12);
+    --blue: #4ea0f7;
+    --blue-dim: rgba(78,160,247,0.12);
+    --purple: #a78bfa;
+    --purple-dim: rgba(167,139,250,0.12);
+    --radius: 10px;
+    --shadow: 0 2px 12px rgba(0,0,0,0.3);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* ─── Header ────────────────────────────────────────── */
+  .header {
+    background: linear-gradient(135deg, #1a1d27 0%, #0f1117 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 32px 0 28px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header-inner {
+    max-width: 1320px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+  .header h1 {
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    margin-bottom: 4px;
+  }
+  .header h1 span { color: var(--accent); }
+  .header .subtitle {
+    color: var(--text-muted);
+    font-size: 14px;
+  }
+
+  /* ─── Stats bar ─────────────────────────────────────── */
+  .stats-bar {
+    display: flex;
+    gap: 16px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+  }
+  .stat-chip {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 18px;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .stat-chip .num {
+    font-weight: 700;
+    font-size: 18px;
+  }
+  .stat-chip.accent .num { color: var(--accent); }
+  .stat-chip.red .num { color: var(--red); }
+  .stat-chip.green .num { color: var(--green); }
+  .stat-chip.gold .num { color: var(--gold); }
+  .stat-chip.blue .num { color: var(--blue); }
+
+  /* ─── Controls ──────────────────────────────────────── */
+  .controls {
+    max-width: 1320px;
+    margin: 24px auto 0;
+    padding: 0 24px;
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .search-box {
+    flex: 1;
+    min-width: 240px;
+    position: relative;
+  }
+  .search-box input {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px 10px 38px;
+    color: var(--text);
+    font-size: 14px;
+    outline: none;
+    transition: border 0.2s;
+  }
+  .search-box input:focus {
+    border-color: var(--accent);
+  }
+  .search-box::before {
+    content: "\1F50D";
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 14px;
+    opacity: 0.5;
+  }
+
+  .filter-group {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .filter-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 7px 16px;
+    color: var(--text-muted);
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .filter-btn:hover { border-color: var(--accent); color: var(--text); }
+  .filter-btn.active {
+    background: var(--accent-dim);
+    border-color: var(--accent);
+    color: var(--accent);
+    font-weight: 600;
+  }
+  .filter-btn.cat-legislation.active { background: var(--red-dim); border-color: var(--red); color: var(--red); }
+  .filter-btn.cat-investment.active { background: var(--green-dim); border-color: var(--green); color: var(--green); }
+  .filter-btn.cat-project.active { background: var(--gold-dim); border-color: var(--gold); color: var(--gold); }
+  .filter-btn.cat-grid.active { background: var(--blue-dim); border-color: var(--blue); color: var(--blue); }
+  .filter-btn.cat-market.active { background: var(--purple-dim); border-color: var(--purple); color: var(--purple); }
+
+  .view-toggle {
+    display: flex;
+    gap: 4px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 3px;
+  }
+  .view-btn {
+    background: transparent;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 14px;
+    color: var(--text-muted);
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .view-btn.active {
+    background: var(--accent);
+    color: white;
+    font-weight: 600;
+  }
+
+  .impact-filter {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    margin-left: 4px;
+  }
+  .impact-filter label {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-right: 4px;
+  }
+  .impact-dot {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    font-weight: 700;
+    color: transparent;
+  }
+  .impact-dot:hover { transform: scale(1.15); }
+  .impact-dot.high { background: var(--red); border-color: var(--red); }
+  .impact-dot.medium { background: var(--gold); border-color: var(--gold); }
+  .impact-dot.low { background: var(--text-muted); border-color: var(--text-muted); }
+  .impact-dot.active { color: white; box-shadow: 0 0 0 3px rgba(255,255,255,0.15); }
+  .impact-dot.inactive { opacity: 0.25; }
+
+  /* ─── Main content ──────────────────────────────────── */
+  .main {
+    max-width: 1320px;
+    margin: 24px auto;
+    padding: 0 24px 60px;
+  }
+
+  /* ─── Timeline view ─────────────────────────────────── */
+  .timeline {
+    position: relative;
+    padding-left: 40px;
+  }
+  .timeline::before {
+    content: "";
+    position: absolute;
+    left: 15px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--border);
+  }
+  .timeline-year {
+    position: relative;
+    margin: 32px 0 16px;
+  }
+  .timeline-year .year-label {
+    position: absolute;
+    left: -40px;
+    background: var(--accent);
+    color: white;
+    font-weight: 700;
+    font-size: 13px;
+    padding: 4px 10px;
+    border-radius: 12px;
+  }
+
+  /* ─── Card ──────────────────────────────────────────── */
+  a.card {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    margin-bottom: 12px;
+    transition: all 0.2s;
+    cursor: pointer;
+    position: relative;
+  }
+  a.card:hover {
+    border-color: var(--accent);
+    box-shadow: var(--shadow);
+    transform: translateY(-1px);
+  }
+  a.card:hover .card-title {
+    color: var(--accent);
+  }
+  .source-link {
+    color: var(--accent);
+    font-weight: 500;
+    font-size: 12px;
+  }
+  .card::before {
+    content: "";
+    position: absolute;
+    left: -33px;
+    top: 24px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    background: var(--bg);
+  }
+  .card.cat-legislation::before { background: var(--red); border-color: var(--red); }
+  .card.cat-investment::before { background: var(--green); border-color: var(--green); }
+  .card.cat-project::before { background: var(--gold); border-color: var(--gold); }
+  .card.cat-grid::before { background: var(--blue); border-color: var(--blue); }
+  .card.cat-market::before { background: var(--purple); border-color: var(--purple); }
+
+  .card-top {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+  }
+  .card-date {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+  .badge {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 10px;
+    border-radius: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .badge-legislation { background: var(--red-dim); color: var(--red); }
+  .badge-investment { background: var(--green-dim); color: var(--green); }
+  .badge-project { background: var(--gold-dim); color: var(--gold); }
+  .badge-grid { background: var(--blue-dim); color: var(--blue); }
+  .badge-market { background: var(--purple-dim); color: var(--purple); }
+
+  .badge-impact {
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 700;
+    margin-left: auto;
+  }
+  .badge-impact.high { background: var(--red-dim); color: var(--red); }
+  .badge-impact.medium { background: var(--gold-dim); color: var(--gold); }
+  .badge-impact.low { background: var(--surface2); color: var(--text-muted); }
+
+  .card-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    line-height: 1.4;
+  }
+  .card-summary {
+    font-size: 14px;
+    color: var(--text-muted);
+    line-height: 1.65;
+    margin-bottom: 12px;
+  }
+  .card-meta {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    font-size: 12px;
+    color: var(--text-muted);
+    align-items: center;
+  }
+  .card-meta .meta-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .card-meta .entity-tag {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+  }
+  .card-meta a {
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 500;
+  }
+  .card-meta a:hover { text-decoration: underline; }
+  .capacity-badge {
+    background: var(--blue-dim);
+    color: var(--blue);
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 11px;
+  }
+  .investment-badge {
+    background: var(--green-dim);
+    color: var(--green);
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 11px;
+  }
+
+  /* ─── Grid (card) view ──────────────────────────────── */
+  .grid-view {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+    gap: 16px;
+  }
+  .grid-view .card {
+    margin-bottom: 0;
+  }
+  .grid-view .card::before { display: none; }
+
+  /* ─── No results ────────────────────────────────────── */
+  .no-results {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-muted);
+  }
+  .no-results .icon { font-size: 40px; margin-bottom: 12px; }
+  .no-results p { font-size: 15px; }
+
+  /* ─── Summary panel ─────────────────────────────────── */
+  .summary-panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    margin-bottom: 24px;
+  }
+  .summary-panel h3 {
+    font-size: 14px;
+    color: var(--text-muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+  }
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+  }
+  .summary-item {
+    background: var(--surface2);
+    border-radius: 8px;
+    padding: 14px 16px;
+  }
+  .summary-item .label {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+  }
+  .summary-item .value {
+    font-size: 20px;
+    font-weight: 700;
+  }
+  .summary-item .value.accent { color: var(--accent); }
+  .summary-item .value.green { color: var(--green); }
+  .summary-item .value.red { color: var(--red); }
+  .summary-item .value.gold { color: var(--gold); }
+  .summary-item .value.blue { color: var(--blue); }
+
+  /* ─── Responsive ────────────────────────────────────── */
+  @media (max-width: 768px) {
+    .header { padding: 20px 0 16px; }
+    .header h1 { font-size: 20px; }
+    .controls { flex-direction: column; align-items: stretch; }
+    .search-box { min-width: 100%; }
+    .grid-view { grid-template-columns: 1fr; }
+    .timeline { padding-left: 32px; }
+    .card::before { left: -25px; }
+    .timeline::before { left: 12px; }
+    .stats-bar { gap: 8px; }
+    .stat-chip { padding: 8px 12px; font-size: 12px; }
+    .stat-chip .num { font-size: 15px; }
+  }
+
+  /* ─── Scrollbar ─────────────────────────────────────── */
+  ::-webkit-scrollbar { width: 8px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+  /* animations */
+  .card { animation: fadeIn 0.3s ease-out; }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-inner">
+    <h1><span>Ontario & Toronto</span> AI Data Center Tracker</h1>
+    <div class="subtitle">Tracking news, legislation, investments, projects, and grid developments &mdash; updated Jan 2026</div>
+    <div class="stats-bar" id="statsBar"></div>
+  </div>
+</div>
+
+<div class="controls" id="controls">
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="Search events, companies, locations...">
+  </div>
+  <div class="filter-group" id="categoryFilters"></div>
+  <div class="impact-filter" id="impactFilter">
+    <label>Impact:</label>
+  </div>
+  <div class="view-toggle">
+    <button class="view-btn active" data-view="timeline">Timeline</button>
+    <button class="view-btn" data-view="grid">Cards</button>
+  </div>
+</div>
+
+<div class="main" id="main">
+  <div class="summary-panel" id="summaryPanel"></div>
+  <div id="eventsContainer"></div>
+</div>
+
+<script>
+// ─── Data (embedded for local file:// compatibility) ───────────────────
+let EMBEDDED_DATA = [
+  {
+    "id": "ev-001",
+    "date": "2025-01-15",
+    "category": "project",
+    "subcategory": "groundbreaking",
+    "title": "Yondr Group breaks ground on 27 MW Toronto data center",
+    "summary": "Yondr Group held a groundbreaking ceremony for its first Canadian data center — a 27 MW, three-storey facility on a 4.5-acre site in Toronto. Ready-for-service targeted mid-2026. Features closed-loop cooling (zero water consumption for cooling).",
+    "entities": [
+      "Yondr Group"
+    ],
+    "location": "Toronto",
+    "capacity_mw": 27,
+    "investment_cad": null,
+    "source_url": "https://www.yondrgroup.com/newsroom/press-release/yondr-group-celebrates-groundbreaking-for-27mw-toronto-data-center/",
+    "source_name": "Yondr Group",
+    "impact": "medium"
+  },
+  {
+    "id": "ev-002",
+    "date": "2025-03-01",
+    "category": "grid",
+    "subcategory": "forecast",
+    "title": "IESO Reliability Outlook: 3,600 MW new capacity added since May 2023",
+    "summary": "The IESO released its March 2025 Reliability Outlook, confirming Ontario's system added over 3,600 MW of new generation capacity since May 2023. System is in a strong reliability position through the rest of this decade. New supply needed for the 2030s and beyond.",
+    "entities": [
+      "IESO"
+    ],
+    "location": "Ontario",
+    "capacity_mw": 3600,
+    "investment_cad": null,
+    "source_url": "https://www.ieso.ca/Sector-Participants/IESO-News/2025/03/Reliability-Outlook-Released-Ontario-System",
+    "source_name": "IESO",
+    "impact": "high"
+  },
+  {
+    "id": "ev-003",
+    "date": "2025-04-01",
+    "category": "market",
+    "subcategory": "report",
+    "title": "IESO 2025 Annual Planning Outlook: 75% demand growth by 2050",
+    "summary": "IESO projects Ontario electricity demand will grow 75% by 2050 (151 TWh to 263 TWh). Data centers forecast to consume 2.5 TWh in 2026 rising to 14 TWh by 2050. At least 16 large data centers expected in service by 2035, accounting for 13% of new demand. Peak demand to increase ~1,000 MW between summer 2025 and summer 2026.",
+    "entities": [
+      "IESO"
+    ],
+    "location": "Ontario",
+    "capacity_mw": null,
+    "investment_cad": null,
+    "source_url": "https://ieso.ca/-/media/Files/IESO/Document-Library/planning-forecasts/apo/2025/2025-Annual-Planning-Outlook.pdf",
+    "source_name": "IESO",
+    "impact": "high"
+  },
+  {
+    "id": "ev-004",
+    "date": "2025-06-03",
+    "category": "legislation",
+    "subcategory": "bill-introduced",
+    "title": "Ontario introduces Bill 40 — Protect Ontario by Securing Affordable Energy for Generations Act",
+    "summary": "Ontario introduces Bill 40, amending the Electricity Act and OEB Act. Key data-center provision (s.28.1): creates an exception to non-discriminatory grid access for 'specified load facilities' including data centers. The Minister of Energy and Mines gains authority to prioritize and approve DC connection requests based on economic benefit. Also adds 'economic growth' mandate for IESO and OEB. Transition: does not apply to connection requests made before June 3, 2025.",
+    "entities": [
+      "Ontario Government",
+      "Minister of Energy and Mines"
+    ],
+    "location": "Ontario",
+    "capacity_mw": null,
+    "investment_cad": null,
+    "source_url": "https://www.ola.org/en/legislative-business/bills/parliament-44/session-1/bill-40",
+    "source_name": "Legislative Assembly of Ontario",
+    "impact": "high"
+  },
+  {
+    "id": "ev-005",
+    "date": "2025-06-03",
+    "category": "legislation",
+    "subcategory": "policy",
+    "title": "Ontario releases 'Energy for Generations' integrated energy plan",
+    "summary": "Companion policy document to Bill 40, setting out Ontario's plans to address forecast demand growth driven by electrification, housing, and data centers. Outlines the province's approach to phasing out natural gas by 2035 with plans for solar, wind, batteries, and heat reuse from data centers. 6,500+ MW of DC grid-connection applications disclosed (~30% of Ontario's 2024 peak demand).",
+    "entities": [
+      "Ontario Government",
+      "IESO"
+    ],
+    "location": "Ontario",
+    "capacity_mw": 6500,
+    "investment_cad": null,
+    "source_url": "https://www.torys.com/our-latest-thinking/publications/2025/06/bill-40",
+    "source_name": "Torys LLP",
+    "impact": "high"
+  },
+  {
+    "id": "ev-006",
+    "date": "2025-07-01",
+    "category": "investment",
+    "subcategory": "financing",
+    "title": "CPP Investments commits C$225M for 54 MW Ontario data center",
+    "summary": "Canada Pension Plan Investment Board announced C$225M in construction financing (50% stake alongside Deutsche Bank) for a 54 MW hyperscale data-center expansion in Cambridge, Ontario. The facility is pre-leased to a GPU-focused AI cloud provider.",
+    "entities": [
+      "CPP Investments",
+      "Deutsche Bank"
+    ],
+    "location": "Cambridge, Ontario",
+    "capacity_mw": 54,
+    "investment_cad": 225000000,
+    "source_url": "https://www.cppinvestments.com/newsroom/cpp-investments-commits-to-225-million-in-construction-financing-for-ontario-data-centre/",
+    "source_name": "CPP Investments",
+    "impact": "high"
+  },
+  {
+    "id": "ev-007",
+    "date": "2025-07-01",
+    "category": "legislation",
+    "subcategory": "planning",
+    "title": "Ontario plans to accelerate data center approvals",
+    "summary": "The Ontario government announced plans to streamline the approval process for data center connections, aiming to cut timelines for grid hookups that currently take 11–13 months for conditional approval plus multiple additional years for transmission work. Total lead times for 100+ MW loads in constrained areas can stretch to 5+ years.",
+    "entities": [
+      "Ontario Government"
+    ],
+    "location": "Ontario",
+    "capacity_mw": null,
+    "investment_cad": null,
+    "source_url": "https://canada.constructconnect.com/dcn/news/government/2025/07/ontario-plans-to-accelerate-approvals-for-data-centres",
+    "source_name": "Daily Commercial News",
+    "impact": "medium"
+  },
+  {
+    "id": "ev-008",
+    "date": "2025-09-05",
+    "category": "legislation",
+    "subcategory": "consultation",
+    "title": "Ontario opens regulatory consultation on data center grid connection rules",
+    "summary": "Ontario posts Environmental Registry notice seeking stakeholder input on regulations under Bill 40 s.28.1. Key questions: threshold size for covered DCs (e.g., >50 MW), pricing mechanisms for infrastructure cost-sharing by large loads, potential distinct electricity rate class for DCs, and incentives for northern Ontario DC development.",
+    "entities": [
+      "Ontario Government"
+    ],
+    "location": "Ontario",
+    "capacity_mw": null,
+    "investment_cad": null,
+    "source_url": "https://ero.ontario.ca/notice/025-1001",
+    "source_name": "Environmental Registry of Ontario",
+    "impact": "high"
+  },
+  {
+    "id": "ev-009",
+    "date": "2025-09-01",
+    "category": "grid",
+    "subcategory": "forecast",
+    "title": "IESO Reliability Outlook: system prepared through March 2027",
+    "summary": "The September 2025 Reliability Outlook confirms Ontario's electricity system is prepared through March 2027. Demand projections slightly lowered compared to previous forecasts due to trade-disruption-driven slower economic growth, but overall long-term trajectory unchanged.",
+    "entities": [
+      "IESO"
+    ],
+    "location": "Ontario",
+    "capacity_mw": null,
+    "investment_cad": null,
+    "source_url": "https://ieso.ca/en/Sector-Participants/IESO-News/2025/09/IESO-Reliability-Outlook---Ontario-Electricity-System-Prepared-Through-March-2027",
+    "source_name": "IESO",
+    "impact": "medium"
+  },
+  {
+    "id": "ev-010",
+    "date": "2025-10-01",
+    "category": "market",
+    "subcategory": "report",
+    "title": "Toronto DC market hits 312 MW operational, 7.6% vacancy (H1 2025)",
+    "summary": "Market data (CBRE / Goran Brelih analysis) shows Toronto's operational data-center capacity reached 312 MW with vacancy dropping to 7.6%. Construction pipeline nearly doubled to 236 MW, boosted by a 112 MW project on Langstaff Road in Markham. 360 MW additional capacity in planning stages. Total pipeline: 908 MW.",
+    "entities": [
+      "CBRE"
+    ],
+    "location": "Toronto",
+    "capacity_mw": 312,
+    "investment_cad": null,
+    "source_url": "https://www.goranbrelih.com/toronto-data-centers-hit-312-mw-milestone-amid-ai-boom/",
+    "source_name": "Goran Brelih",
+    "impact": "medium"
+  },
+  {
+    "id": "ev-011",
+    "date": "2025-10-15",
+    "category": "project",
+    "subcategory": "announcement",
+    "title": "Related Companies planning first NA data center in Ontario",
+    "summary": "New York-based Related Companies (known for Hudson Yards) is planning its first North American data center in Ontario. Site selection in progress. The entry of a major real-estate developer into the DC space signals the asset class's mainstream appeal.",
+    "entities": [
+      "Related Companies"
+    ],
+    "location": "Ontario",
+    "capacity_mw": null,
+    "investment_cad": null,
+    "source_url": "https://www.datacenterdynamics.com/en/news/canadian-developer-looks-to-build-data-center-in-toronto/",
+    "source_name": "DataCenterDynamics",
+    "impact": "medium"
+  },
+  {
+    "id": "ev-012",
+    "date": "2025-11-01",
+    "category": "project",
+    "subcategory": "announcement",
+    "title": "QScale plans multi-billion-dollar AI hyperscale near Toronto",
+    "summary": "Quebec-based QScale received preliminary validation from Hydro One for power at a planned multi-billion-dollar AI hyperscale data center near Toronto. If approved, it would be one of the largest in Canada. QScale is finishing Q01 Phase 3 in Lévis, QC (142 MW, C$1.2B). Specific GTA site selection in progress.",
+    "entities": [
+      "QScale",
+      "Hydro One"
+    ],
+    "location": "Greater Toronto Area",
+    "capacity_mw": null,
+    "investment_cad": 2000000000,
+    "source_url": "https://www.datacenterdynamics.com/en/news/canadas-qscale-plans-to-build-multi-billion-dollar-data-center-in-toronto/",
+    "source_name": "DataCenterDynamics",
+    "impact": "high"
+  },
+  {
+    "id": "ev-013",
+    "date": "2025-11-15",
+    "category": "project",
+    "subcategory": "development",
+    "title": "Beeches Development pivots Leaside site from life-science to data center",
+    "summary": "A Toronto developer pivoted a planned Leaside (Wicksteed Avenue) project from office/life-science to a 7-storey data center. Existing zoning approvals still apply. Initial capacity 15 MW available now; ideal target of 25 MW but Toronto Hydro needs 5–7 years to deliver full power. The existing building will be demolished.",
+    "entities": [
+      "Beeches Development"
+    ],
+    "location": "Toronto (Leaside)",
+    "capacity_mw": 25,
+    "investment_cad": null,
+    "source_url": "https://www.theglobeandmail.com/business/industry-news/property-report/article-as-market-shifts-developer-plans-new-data-centre/",
+    "source_name": "The Globe and Mail",
+    "impact": "low"
+  },
+  {
+    "id": "ev-014",
+    "date": "2025-12-09",
+    "category": "investment",
+    "subcategory": "corporate",
+    "title": "Microsoft announces C$19B Canadian AI investment (2023–2027)",
+    "summary": "Microsoft announced its largest-ever Canadian commitment: C$19B total between 2023–2027, with C$7.5B earmarked for 2026–2027 Azure data-center expansion in Toronto (Canada Central) and Quebec City (Canada East). New capacity begins online H2 2026. Includes GPU additions for AI workloads, a 5-point digital sovereignty plan, a Threat Intelligence Hub in Ottawa, Sovereign AI Landing Zone, and commitment to help 250,000 Canadians earn AI credentials by 2026.",
+    "entities": [
+      "Microsoft"
+    ],
+    "location": "Toronto / Ontario (Canada Central)",
+    "capacity_mw": null,
+    "investment_cad": 19000000000,
+    "source_url": "https://blogs.microsoft.com/on-the-issues/2025/12/09/microsoft-deepens-its-commitment-to-canada-with-landmark-19b-ai-investment/",
+    "source_name": "Microsoft",
+    "impact": "high"
+  },
+  {
+    "id": "ev-015",
+    "date": "2025-12-11",
+    "category": "legislation",
+    "subcategory": "royal-assent",
+    "title": "Bill 40 receives Royal Assent — now law",
+    "summary": "Bill 40, the Protect Ontario by Securing Affordable Energy for Generations Act, received Royal Assent on December 11, 2025 (Chapter 22, Statutes of Ontario, 2025). Data-center grid-connection rules, economic growth mandates for IESO/OEB, hydrogen support, and foreign participation restrictions are now enacted. Implementation via regulations under the Minister's new authority pending.",
+    "entities": [
+      "Ontario Government"
+    ],
+    "location": "Ontario",
+    "capacity_mw": null,
+    "investment_cad": null,
+    "source_url": "https://www.mccarthy.ca/en/insights/blogs/canadian-energy-perspectives/bill-40-protect-ontario-by-securing-affordable-energy-for-generations-act-2025-receives-royal-assent-major-changes-to-ontario-energy-policy-now-in-effect",
+    "source_name": "McCarthy Tetrault",
+    "impact": "high"
+  },
+  {
+    "id": "ev-016",
+    "date": "2025-12-15",
+    "category": "grid",
+    "subcategory": "forecast",
+    "title": "IESO Reliability Outlook: system prepared through June 2027",
+    "summary": "December 2025 Reliability Outlook extends the adequacy horizon to June 2027. Lower demand projections versus previous outlooks due to trade-disruption-induced slower economic growth, but data-center demand remains a key growth driver. DC demand projected to grow from 2.5 TWh (2026) to 14 TWh (2050).",
+    "entities": [
+      "IESO"
+    ],
+    "location": "Ontario",
+    "capacity_mw": null,
+    "investment_cad": null,
+    "source_url": "https://ieso.ca/en/Sector-Participants/IESO-News/2025/12/IESO-Reliability-Outlook---Ontario-Electricity-System-Prepared-Through---June-2027",
+    "source_name": "IESO",
+    "impact": "medium"
+  },
+  {
+    "id": "ev-017",
+    "date": "2025-12-15",
+    "category": "legislation",
+    "subcategory": "analysis",
+    "title": "Torys LLP publishes key takeaways on Bill 40 implementation",
+    "summary": "Legal analysis outlines next steps for Bill 40 regulations, including forthcoming rules for 'specified load facilities' (data centers), the expected threshold for ministerial approval (likely >50 MW), and the new foreign participation restrictions. Notes that the transition provision protects pre-June 3, 2025 connection requests.",
+    "entities": [
+      "Torys LLP"
+    ],
+    "location": "Ontario",
+    "capacity_mw": null,
+    "investment_cad": null,
+    "source_url": "https://www.torys.com/our-latest-thinking/publications/2025/12/key-takeaways-and-next-steps-on-new-energy-law",
+    "source_name": "Torys LLP",
+    "impact": "medium"
+  },
+  {
+    "id": "ev-018",
+    "date": "2024-12-01",
+    "category": "investment",
+    "subcategory": "government",
+    "title": "Federal government commits C$240M to Cohere / Bell AI Fabric",
+    "summary": "The federal government committed C$240M to support Toronto-based AI startup Cohere in developing AI data centers through the Bell AI Fabric project. The project targets 500 MW of capacity upon full build-out. Part of the broader sovereign AI compute strategy.",
+    "entities": [
+      "Government of Canada",
+      "Cohere",
+      "Bell Canada"
+    ],
+    "location": "Ontario",
+    "capacity_mw": 500,
+    "investment_cad": 240000000,
+    "source_url": "https://www.datacenterknowledge.com/data-center-site-selection/canada-emerges-as-global-data-center-powerhouse",
+    "source_name": "Data Center Knowledge",
+    "impact": "high"
+  },
+  {
+    "id": "ev-019",
+    "date": "2024-04-16",
+    "category": "investment",
+    "subcategory": "government",
+    "title": "Federal Budget 2024: C$2.4B for AI compute and safety research",
+    "summary": "The 2024 federal budget allocated C$2.4B for AI computing infrastructure and safety research across Canada, part of a broader push for sovereign AI capability.",
+    "entities": [
+      "Government of Canada"
+    ],
+    "location": "Canada-wide",
+    "capacity_mw": null,
+    "investment_cad": 2400000000,
+    "source_url": "https://www.datacenterknowledge.com/data-center-site-selection/canada-emerges-as-global-data-center-powerhouse",
+    "source_name": "Data Center Knowledge",
+    "impact": "high"
+  },
+  {
+    "id": "ev-020",
+    "date": "2024-11-01",
+    "category": "investment",
+    "subcategory": "government",
+    "title": "Federal Fall Economic Statement: C$15B AI DC loan/equity program",
+    "summary": "The Fall Economic Statement 2024 proposed up to C$15B in aggregate loan and equity investments for AI data-center projects co-invested by Canadian pension funds (targeting a 2:1 pension-to-government investment ratio). Designed to attract large-scale DC infrastructure investment within Canada.",
+    "entities": [
+      "Government of Canada"
+    ],
+    "location": "Canada-wide",
+    "capacity_mw": null,
+    "investment_cad": 15000000000,
+    "source_url": "https://www.torys.com/our-latest-thinking/publications/2025/07/connecting-data-centres-in-ontario",
+    "source_name": "Torys LLP",
+    "impact": "high"
+  },
+  {
+    "id": "ev-021",
+    "date": "2025-05-01",
+    "category": "project",
+    "subcategory": "operational",
+    "title": "STACK Infrastructure TOR01A operational in downtown Toronto",
+    "summary": "STACK's TOR01A data center — the company's first international facility — is operational in downtown Toronto. The 92,000 sq ft facility has 4 MW data halls at N+2 redundancy. Design underway for neighboring 24 MW TOR01B, followed by 24 MW TOR01C.",
+    "entities": [
+      "STACK Infrastructure"
+    ],
+    "location": "Toronto",
+    "capacity_mw": 52,
+    "investment_cad": null,
+    "source_url": "https://www.stantec.com/en/projects/canada-projects/s/stack-infrastructure-data-center-campus",
+    "source_name": "Stantec",
+    "impact": "medium"
+  },
+  {
+    "id": "ev-022",
+    "date": "2025-08-01",
+    "category": "market",
+    "subcategory": "report",
+    "title": "Markham 112 MW data center project boosts Toronto suburban pipeline",
+    "summary": "A 112 MW data center project on Langstaff Road in Markham nearly doubled Toronto's construction pipeline. Development is spreading to suburbs (Markham, Etobicoke, Mississauga, Cambridge) offering larger sites, better power access, and lower costs while staying near Toronto's talent pool.",
+    "entities": [],
+    "location": "Markham, Ontario",
+    "capacity_mw": 112,
+    "investment_cad": null,
+    "source_url": "https://www.goranbrelih.com/toronto-data-centers-hit-312-mw-milestone-amid-ai-boom/",
+    "source_name": "Goran Brelih",
+    "impact": "medium"
+  },
+  {
+    "id": "ev-023",
+    "date": "2025-04-15",
+    "category": "investment",
+    "subcategory": "government",
+    "title": "Canada Budget 2025: 'Productivity Super-Deduction' includes DC infrastructure",
+    "summary": "Federal Budget 2025 packages previously announced tax incentives into a 'Productivity Super-Deduction' offering 100% first-year write-off for eligible assets including data network infrastructure, computers, manufacturing/processing machinery, clean energy assets, and a new immediate-expensing provision for manufacturing buildings.",
+    "entities": [
+      "Government of Canada"
+    ],
+    "location": "Canada-wide",
+    "capacity_mw": null,
+    "investment_cad": null,
+    "source_url": "https://www.mintz.com/insights-center/viewpoints/2906/2025-11-06-canadas-federal-budget-2025-cost-playing-it-safe",
+    "source_name": "Mintz",
+    "impact": "medium"
+  },
+  {
+    "id": "ev-024",
+    "date": "2023-12-20",
+    "category": "project",
+    "subcategory": "operational",
+    "title": "AWS launches Canada West (Calgary) region — no Ontario region announced",
+    "summary": "AWS launched its second Canadian cloud region in Calgary (Canada West). AWS's only other Canadian region is Montreal (Canada Central, launched 2016). No Ontario/Toronto-specific AWS cloud region has been announced. AWS plans to invest C$24.8B across Canada through 2037.",
+    "entities": [
+      "Amazon Web Services"
+    ],
+    "location": "Calgary (context: no Ontario region)",
+    "capacity_mw": null,
+    "investment_cad": 24800000000,
+    "source_url": "https://press.aboutamazon.com/2023/12/aws-launches-second-infrastructure-region-in-canada",
+    "source_name": "Amazon",
+    "impact": "medium"
+  },
+  {
+    "id": "ev-025",
+    "date": "2021-04-01",
+    "category": "project",
+    "subcategory": "operational",
+    "title": "Google Cloud Toronto region launched",
+    "summary": "Google Cloud opened its Toronto region (northamerica-northeast2), providing Canadian customers with local data residency and lower latency. Two regions now in Canada: Toronto and Montreal. No major new Toronto-specific expansion announcements since launch.",
+    "entities": [
+      "Google Cloud"
+    ],
+    "location": "Toronto",
+    "capacity_mw": null,
+    "investment_cad": null,
+    "source_url": "https://blog.google/intl/en-ca/products/cloud/new-google-cloud-region-toronto-now-open/",
+    "source_name": "Google",
+    "impact": "medium"
+  },
+  {
+    "id": "ev-026",
+    "date": "2025-06-15",
+    "category": "market",
+    "subcategory": "analysis",
+    "title": "Torys LLP: Key challenges connecting data centers in Ontario",
+    "summary": "Detailed legal analysis of Ontario DC grid-connection challenges: Connection Assessment & Approval (CAA) timelines of 11–13 months to conditional approval, plus years for transmission work. Total lead times for 100+ MW loads in constrained areas can reach 5+ years. Notes tension between provincial economic growth goals and local infrastructure limits.",
+    "entities": [
+      "Torys LLP"
+    ],
+    "location": "Ontario",
+    "capacity_mw": null,
+    "investment_cad": null,
+    "source_url": "https://www.torys.com/our-latest-thinking/publications/2025/07/connecting-data-centres-in-ontario",
+    "source_name": "Torys LLP",
+    "impact": "medium"
+  },
+  {
+    "id": "ev-027",
+    "date": "2026-01-23",
+    "category": "market",
+    "subcategory": "analysis",
+    "title": "Global hyperscaler capex forecast to exceed $600B in 2026",
+    "summary": "Hyperscaler capex (Amazon, Alphabet, Microsoft, Meta, Oracle) is forecast to exceed $600B in 2026, up 36% from 2025. Roughly 75% ($450B) directly tied to AI infrastructure. Amazon's capex alone topped $100B in 2025 and is expected to remain elevated in 2026. Context: competition for Ontario/Toronto DC capacity is driven by this global spend wave.",
+    "entities": [
+      "Amazon",
+      "Alphabet",
+      "Microsoft",
+      "Meta",
+      "Oracle"
+    ],
+    "location": "Global (Ontario context)",
+    "capacity_mw": null,
+    "investment_cad": null,
+    "source_url": "https://techblog.comsoc.org/2025/12/22/hyperscaler-capex-600-bn-in-2026-a-36-increase-over-2025-while-global-spending-on-cloud-infrastructure-services-skyrockets/",
+    "source_name": "IEEE ComSoc",
+    "impact": "high"
+  },
+  {
+    "id": "ev-028",
+    "date": "2025-11-01",
+    "category": "market",
+    "subcategory": "report",
+    "title": "Canada DC market estimated at $11.46B (2025), projected $22.24B by 2030",
+    "summary": "Market research estimates the Canadian data center market at $11.46B in 2025, growing to $22.24B by 2030. Toronto, Montreal, and Alberta collectively account for 93% of the nation's total IT load. Toronto's total inventory: 315 MW (CBRE data), with 153 MW under construction.",
+    "entities": [],
+    "location": "Canada-wide (Toronto focus)",
+    "capacity_mw": null,
+    "investment_cad": null,
+    "source_url": "https://www.mordorintelligence.com/industry-reports/canada-data-center-market",
+    "source_name": "Mordor Intelligence",
+    "impact": "medium"
+  },
+  {
+    "id": "ev-029",
+    "date": "2025-10-01",
+    "category": "legislation",
+    "subcategory": "analysis",
+    "title": "Torys LLP addendum: connecting data centers in Ontario — post-consultation update",
+    "summary": "Follow-up analysis incorporating the September 2025 regulatory consultation outcomes and evolving IESO requirements. Notes growing complexity of the approval landscape and the pending regulations that will define the threshold, pricing, and process for DC grid connections under Bill 40.",
+    "entities": [
+      "Torys LLP"
+    ],
+    "location": "Ontario",
+    "capacity_mw": null,
+    "investment_cad": null,
+    "source_url": "https://www.torys.com/our-latest-thinking/publications/2025/10/addendum-to-data-centres-in-ontario",
+    "source_name": "Torys LLP",
+    "impact": "medium"
+  },
+  {
+    "id": "ev-030",
+    "date": "2025-12-20",
+    "category": "market",
+    "subcategory": "analysis",
+    "title": "Cassels: Legal landscape of data center development in Canada",
+    "summary": "Comprehensive legal overview covering federal and provincial regulatory frameworks affecting DC development: zoning and land-use permitting, environmental reviews, IESO/OEB processes, foreign investment review (Investment Canada Act), and the new Bill 40 framework. Notes that municipal zoning remains a key bottleneck alongside power availability.",
+    "entities": [
+      "Cassels"
+    ],
+    "location": "Ontario / Canada",
+    "capacity_mw": null,
+    "investment_cad": null,
+    "source_url": "https://cassels.com/insights/power-surge-legal-landscape-of-data-centre-development-in-canada/",
+    "source_name": "Cassels",
+    "impact": "medium"
+  }
+];
+
+let DATA = [];
+let state = {
+  search: "",
+  categories: new Set(),
+  impacts: new Set(["high", "medium", "low"]),
+  view: "timeline",
+};
+
+const CATEGORY_META = {
+  legislation: { label: "Legislation & Policy", color: "red" },
+  investment:  { label: "Investment",           color: "green" },
+  project:     { label: "Projects",             color: "gold" },
+  grid:        { label: "Grid & Power",         color: "blue" },
+  market:      { label: "Market & Analysis",    color: "purple" },
+};
+
+// ─── Init ──────────────────────────────────────────────────────────────
+function init() {
+  DATA = EMBEDDED_DATA.slice();
+  DATA.sort(function(a, b) { return b.date.localeCompare(a.date); });
+  state.categories = new Set(Object.keys(CATEGORY_META));
+  buildCategoryFilters();
+  buildImpactFilter();
+  buildViewToggle();
+  render();
+}
+
+// ─── Filters UI ────────────────────────────────────────────────────────
+function buildCategoryFilters() {
+  const wrap = document.getElementById("categoryFilters");
+  // "All" button
+  const allBtn = document.createElement("button");
+  allBtn.className = "filter-btn active";
+  allBtn.textContent = "All";
+  allBtn.dataset.cat = "all";
+  allBtn.addEventListener("click", () => {
+    state.categories = new Set(Object.keys(CATEGORY_META));
+    refreshCatButtons();
+    render();
+  });
+  wrap.appendChild(allBtn);
+
+  for (const [key, meta] of Object.entries(CATEGORY_META)) {
+    const btn = document.createElement("button");
+    btn.className = `filter-btn cat-${key} active`;
+    btn.textContent = meta.label;
+    btn.dataset.cat = key;
+    btn.addEventListener("click", () => {
+      if (state.categories.size === Object.keys(CATEGORY_META).length) {
+        // switching from "all" to single
+        state.categories = new Set([key]);
+      } else if (state.categories.has(key)) {
+        state.categories.delete(key);
+        if (state.categories.size === 0)
+          state.categories = new Set(Object.keys(CATEGORY_META));
+      } else {
+        state.categories.add(key);
+      }
+      refreshCatButtons();
+      render();
+    });
+    wrap.appendChild(btn);
+  }
+}
+
+function refreshCatButtons() {
+  const allActive = state.categories.size === Object.keys(CATEGORY_META).length;
+  document.querySelectorAll("#categoryFilters .filter-btn").forEach(btn => {
+    const cat = btn.dataset.cat;
+    if (cat === "all") {
+      btn.classList.toggle("active", allActive);
+    } else {
+      btn.classList.toggle("active", state.categories.has(cat));
+    }
+  });
+}
+
+function buildImpactFilter() {
+  const wrap = document.getElementById("impactFilter");
+  for (const level of ["high", "medium", "low"]) {
+    const dot = document.createElement("button");
+    dot.className = `impact-dot ${level} active`;
+    dot.title = level.charAt(0).toUpperCase() + level.slice(1) + " impact";
+    dot.textContent = level.charAt(0).toUpperCase();
+    dot.addEventListener("click", () => {
+      if (state.impacts.has(level)) {
+        state.impacts.delete(level);
+        dot.classList.remove("active");
+        dot.classList.add("inactive");
+      } else {
+        state.impacts.add(level);
+        dot.classList.add("active");
+        dot.classList.remove("inactive");
+      }
+      if (state.impacts.size === 0) {
+        state.impacts = new Set(["high", "medium", "low"]);
+        wrap.querySelectorAll(".impact-dot").forEach(d => {
+          d.classList.add("active");
+          d.classList.remove("inactive");
+        });
+      }
+      render();
+    });
+    wrap.appendChild(dot);
+  }
+}
+
+function buildViewToggle() {
+  document.querySelectorAll(".view-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      state.view = btn.dataset.view;
+      document.querySelectorAll(".view-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      render();
+    });
+  });
+}
+
+// ─── Search ────────────────────────────────────────────────────────────
+document.getElementById("searchInput").addEventListener("input", (e) => {
+  state.search = e.target.value.toLowerCase().trim();
+  render();
+});
+
+// ─── Filter logic ──────────────────────────────────────────────────────
+function filteredData() {
+  return DATA.filter(ev => {
+    if (!state.categories.has(ev.category)) return false;
+    if (!state.impacts.has(ev.impact)) return false;
+    if (state.search) {
+      const haystack = [
+        ev.title, ev.summary, ev.location,
+        ...(ev.entities || []),
+        ev.category, ev.subcategory,
+        ev.source_name,
+      ].join(" ").toLowerCase();
+      if (!haystack.includes(state.search)) return false;
+    }
+    return true;
+  });
+}
+
+// ─── Render ────────────────────────────────────────────────────────────
+function render() {
+  const events = filteredData();
+  renderStats(events);
+  renderSummary(events);
+  const container = document.getElementById("eventsContainer");
+  container.innerHTML = "";
+
+  if (events.length === 0) {
+    container.innerHTML = `
+      <div class="no-results">
+        <div class="icon">&#128269;</div>
+        <p>No events match the current filters.</p>
+      </div>`;
+    return;
+  }
+
+  if (state.view === "timeline") {
+    renderTimeline(container, events);
+  } else {
+    renderGrid(container, events);
+  }
+}
+
+function renderTimeline(container, events) {
+  const timeline = document.createElement("div");
+  timeline.className = "timeline";
+  let currentYear = null;
+
+  for (const ev of events) {
+    const year = ev.date.substring(0, 4);
+    if (year !== currentYear) {
+      currentYear = year;
+      const yearDiv = document.createElement("div");
+      yearDiv.className = "timeline-year";
+      yearDiv.innerHTML = `<span class="year-label">${year}</span>`;
+      timeline.appendChild(yearDiv);
+    }
+    timeline.appendChild(createCard(ev));
+  }
+  container.appendChild(timeline);
+}
+
+function renderGrid(container, events) {
+  const grid = document.createElement("div");
+  grid.className = "grid-view";
+  for (const ev of events) {
+    grid.appendChild(createCard(ev));
+  }
+  container.appendChild(grid);
+}
+
+function createCard(ev) {
+  var card = document.createElement("a");
+  card.className = "card cat-" + ev.category;
+  if (ev.source_url) {
+    card.href = ev.source_url;
+    card.target = "_blank";
+    card.rel = "noopener";
+  }
+
+  var dateStr = formatDate(ev.date);
+  var catMeta = CATEGORY_META[ev.category] || {};
+
+  var metaItems = "";
+  if (ev.location) {
+    metaItems += '<span class="meta-item">&#128205; ' + esc(ev.location) + '</span>';
+  }
+  if (ev.capacity_mw) {
+    metaItems += '<span class="meta-item"><span class="capacity-badge">' + ev.capacity_mw.toLocaleString() + ' MW</span></span>';
+  }
+  if (ev.investment_cad) {
+    metaItems += '<span class="meta-item"><span class="investment-badge">' + formatCAD(ev.investment_cad) + '</span></span>';
+  }
+  if (ev.entities && ev.entities.length > 0) {
+    for (var i = 0; i < ev.entities.length; i++) {
+      metaItems += '<span class="entity-tag">' + esc(ev.entities[i]) + '</span>';
+    }
+  }
+  if (ev.source_url) {
+    metaItems += '<span class="source-link">' + esc(ev.source_name || "Source") + ' &#8599;</span>';
+  }
+
+  var subcatBadge = "";
+  if (ev.subcategory) {
+    subcatBadge = '<span class="badge" style="background:var(--surface2);color:var(--text-muted)">' + esc(ev.subcategory) + '</span>';
+  }
+
+  card.innerHTML =
+    '<div class="card-top">' +
+      '<span class="card-date">' + dateStr + '</span>' +
+      '<span class="badge badge-' + ev.category + '">' + esc(catMeta.label || ev.category) + '</span>' +
+      subcatBadge +
+      '<span class="badge-impact ' + ev.impact + '">' + ev.impact + '</span>' +
+    '</div>' +
+    '<div class="card-title">' + esc(ev.title) + '</div>' +
+    '<div class="card-summary">' + esc(ev.summary) + '</div>' +
+    '<div class="card-meta">' + metaItems + '</div>';
+  return card;
+}
+
+// ─── Stats bar ─────────────────────────────────────────────────────────
+function renderStats(events) {
+  const bar = document.getElementById("statsBar");
+  const total = events.length;
+  const highImpact = events.filter(e => e.impact === "high").length;
+  const totalInvestment = events.reduce((sum, e) => sum + (e.investment_cad || 0), 0);
+  const totalCapacity = events.filter(e => e.capacity_mw).reduce((sum, e) => sum + e.capacity_mw, 0);
+  const catCounts = {};
+  for (const e of events) catCounts[e.category] = (catCounts[e.category] || 0) + 1;
+
+  bar.innerHTML = `
+    <div class="stat-chip accent"><span class="num">${total}</span> events tracked</div>
+    <div class="stat-chip red"><span class="num">${highImpact}</span> high-impact</div>
+    <div class="stat-chip green"><span class="num">${formatCADShort(totalInvestment)}</span> investments cited</div>
+    <div class="stat-chip blue"><span class="num">${totalCapacity.toLocaleString()} MW</span> capacity referenced</div>
+    <div class="stat-chip gold"><span class="num">${catCounts.legislation || 0}</span> legislative</div>
+  `;
+}
+
+// ─── Summary panel ─────────────────────────────────────────────────────
+function renderSummary(events) {
+  const panel = document.getElementById("summaryPanel");
+  if (events.length === 0) { panel.innerHTML = ""; return; }
+
+  const legEvents = events.filter(e => e.category === "legislation");
+  const invEvents = events.filter(e => e.category === "investment");
+  const projEvents = events.filter(e => e.category === "project");
+  const gridEvents = events.filter(e => e.category === "grid");
+
+  const latestLeg = legEvents.length > 0 ? legEvents[0] : null;
+  const latestProj = projEvents.length > 0 ? projEvents[0] : null;
+
+  const totalInv = invEvents.reduce((s, e) => s + (e.investment_cad || 0), 0);
+  const dateRange = events.length > 0
+    ? `${formatDate(events[events.length-1].date)} — ${formatDate(events[0].date)}`
+    : "—";
+
+  panel.innerHTML = `
+    <h3>Dashboard Summary</h3>
+    <div class="summary-grid">
+      <div class="summary-item">
+        <div class="label">Date Range</div>
+        <div class="value accent">${dateRange}</div>
+      </div>
+      <div class="summary-item">
+        <div class="label">Total Investments Cited</div>
+        <div class="value green">${formatCAD(totalInv)}</div>
+      </div>
+      <div class="summary-item">
+        <div class="label">Latest Legislation</div>
+        <div class="value red" style="font-size:14px">${latestLeg ? esc(latestLeg.title.substring(0, 60)) + "..." : "—"}</div>
+      </div>
+      <div class="summary-item">
+        <div class="label">Latest Project</div>
+        <div class="value gold" style="font-size:14px">${latestProj ? esc(latestProj.title.substring(0, 60)) + "..." : "—"}</div>
+      </div>
+      <div class="summary-item">
+        <div class="label">Legislative Events</div>
+        <div class="value red">${legEvents.length}</div>
+      </div>
+      <div class="summary-item">
+        <div class="label">Grid / Power Events</div>
+        <div class="value blue">${gridEvents.length}</div>
+      </div>
+    </div>
+  `;
+}
+
+// ─── Helpers ───────────────────────────────────────────────────────────
+function formatDate(dateStr) {
+  const d = new Date(dateStr + "T00:00:00");
+  return d.toLocaleDateString("en-CA", { year: "numeric", month: "short", day: "numeric" });
+}
+
+function formatCAD(num) {
+  if (!num) return "—";
+  if (num >= 1e9) return `C$${(num / 1e9).toFixed(1)}B`;
+  if (num >= 1e6) return `C$${(num / 1e6).toFixed(0)}M`;
+  return `C$${num.toLocaleString()}`;
+}
+
+function formatCADShort(num) {
+  if (!num) return "C$0";
+  if (num >= 1e9) return `C$${(num / 1e9).toFixed(1)}B`;
+  if (num >= 1e6) return `C$${(num / 1e6).toFixed(0)}M`;
+  return `C$${num.toLocaleString()}`;
+}
+
+function esc(str) {
+  const div = document.createElement("div");
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+// ─── Launch ────────────────────────────────────────────────────────────
+try {
+  init();
+} catch (err) {
+  console.error("Tracker init failed:", err);
+  document.getElementById("eventsContainer").innerHTML =
+    '<div style="color:#ff5c72;padding:40px;text-align:center">' +
+    '<p>Error loading tracker: ' + err.message + '</p>' +
+    '<p>Embedded data entries: ' + EMBEDDED_DATA.length + '</p></div>';
+}
+</script>
+</body>
+</html>
