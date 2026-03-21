@@ -1,0 +1,70 @@
+{
+  "expo": {
+    "name": "Coupon Vault",
+    "slug": "coupon-vault",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "scheme": "couponvault",
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#4F46E5"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.couponvault.app",
+      "infoPlist": {
+        "NSCameraUsageDescription": "Coupon Vault needs camera access to photograph coupons for automatic data extraction.",
+        "NSPhotoLibraryUsageDescription": "Coupon Vault needs photo library access to import coupon images.",
+        "NSLocationWhenInUseUsageDescription": "Coupon Vault uses your location to notify you about coupons for nearby stores.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "Coupon Vault monitors your location in the background to alert you when you're near a store where you have a coupon."
+      }
+    },
+    "android": {
+      "package": "com.couponvault.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#4F46E5",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "permissions": [
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_BACKGROUND_LOCATION",
+        "RECEIVE_BOOT_COMPLETED",
+        "VIBRATE"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Coupon Vault monitors your location to alert you about coupons for nearby stores."
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/icon.png"
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Coupon Vault needs photo library access to import coupon images.",
+          "cameraPermission": "Coupon Vault needs camera access to photograph coupons."
+        }
+      ]
+    ]
+  }
+}
