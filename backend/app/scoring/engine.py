@@ -9,11 +9,7 @@ spatial queries and configurable weights.
 import logging
 from datetime import datetime, timezone
 
-from geoalchemy2.functions import (
-    ST_DWithin,
-    ST_Distance,
-    ST_Intersects,
-)
+from geoalchemy2 import Geography
 from sqlalchemy import cast, func, select
 from sqlalchemy.orm import Session
 
@@ -110,6 +106,19 @@ class ScoringEngine:
         return score
 
     # ------------------------------------------------------------------
+    # Helpers
+    # ------------------------------------------------------------------
+
+    def _parcel_geom_subquery(self, parcel_id: int):
+        """Return a scalar subquery for a parcel's geometry (stays DB-side)."""
+        return (
+            select(Parcel.geom)
+            .where(Parcel.id == parcel_id)
+            .correlate(None)
+            .scalar_subquery()
+        )
+
+    # ------------------------------------------------------------------
     # Category scorers (each returns a 0-1 normalised value)
     # ------------------------------------------------------------------
 
@@ -120,20 +129,21 @@ class ScoringEngine:
         on SRID 4326 data.
         """
         max_dist_m = self.config.max_power_distance_km * M_PER_KM
+        parcel_geom = self._parcel_geom_subquery(parcel.id)
 
         # Find substations within search radius, ordered by distance.
         stmt = (
             select(
                 Substation.voltage_kv,
                 func.ST_Distance(
-                    func.cast(parcel.geom, func.Geography()),
-                    func.cast(Substation.geom, func.Geography()),
+                    cast(parcel_geom, Geography),
+                    cast(Substation.geom, Geography),
                 ).label("dist_m"),
             )
             .where(
                 func.ST_DWithin(
-                    func.cast(parcel.geom, func.Geography()),
-                    func.cast(Substation.geom, func.Geography()),
+                    cast(parcel_geom, Geography),
+                    cast(Substation.geom, Geography),
                     max_dist_m,
                 )
             )
@@ -187,19 +197,20 @@ class ScoringEngine:
         Awards a bonus when multiple providers are reachable.
         """
         max_dist_m = self.config.max_fiber_distance_km * M_PER_KM
+        parcel_geom = self._parcel_geom_subquery(parcel.id)
 
         stmt = (
             select(
                 FiberRoute.provider,
                 func.ST_Distance(
-                    func.cast(parcel.geom, func.Geography()),
-                    func.cast(FiberRoute.geom, func.Geography()),
+                    cast(parcel_geom, Geography),
+                    cast(FiberRoute.geom, Geography),
                 ).label("dist_m"),
             )
             .where(
                 func.ST_DWithin(
-                    func.cast(parcel.geom, func.Geography()),
-                    func.cast(FiberRoute.geom, func.Geography()),
+                    cast(parcel_geom, Geography),
+                    cast(FiberRoute.geom, Geography),
                     max_dist_m,
                 )
             )
@@ -233,9 +244,10 @@ class ScoringEngine:
         0.3 -- parcel intersects a zone that is not flagged dc_compatible
         0.0 -- no zoning information available
         """
+        parcel_geom = self._parcel_geom_subquery(parcel.id)
         stmt = (
             select(Zoning.dc_compatible, Zoning.zone_code)
-            .where(func.ST_Intersects(parcel.geom, Zoning.geom))
+            .where(func.ST_Intersects(parcel_geom, Zoning.geom))
         )
         rows = self.db.execute(stmt).all()
 
@@ -293,9 +305,10 @@ class ScoringEngine:
         Starts at 1.0 and subtracts per overlapping constraint based on
         severity.  Returns risk_flags dict for transparency.
         """
+        parcel_geom = self._parcel_geom_subquery(parcel.id)
         stmt = (
             select(Constraint.constraint_type, Constraint.severity)
-            .where(func.ST_Intersects(parcel.geom, Constraint.geom))
+            .where(func.ST_Intersects(parcel_geom, Constraint.geom))
         )
         rows = self.db.execute(stmt).all()
 

@@ -33,7 +33,7 @@ async def lifespan(app: FastAPI):
     # Import models so SQLAlchemy registers them with Base.
     import app.models  # noqa: F401
 
-    Base.metadata.create_all(bind=engine)
+    Base.metadata.create_all(bind=engine, checkfirst=True)
     logger.info("Database tables ready.")
     yield
     logger.info("Application shutting down.")

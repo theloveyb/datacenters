@@ -54,9 +54,6 @@ class Substation(Base):
         DateTime(timezone=True), default=_utcnow, onupdate=_utcnow
     )
 
-    __table_args__ = (
-        Index("idx_substations_geom", geom, postgresql_using="gist"),
-    )
 
 
 class TransmissionLine(Base):
@@ -74,9 +71,6 @@ class TransmissionLine(Base):
         DateTime(timezone=True), default=_utcnow, onupdate=_utcnow
     )
 
-    __table_args__ = (
-        Index("idx_transmission_lines_geom", geom, postgresql_using="gist"),
-    )
 
 
 # ---------------------------------------------------------------------------
@@ -99,9 +93,6 @@ class FiberRoute(Base):
         DateTime(timezone=True), default=_utcnow, onupdate=_utcnow
     )
 
-    __table_args__ = (
-        Index("idx_fiber_routes_geom", geom, postgresql_using="gist"),
-    )
 
 
 # ---------------------------------------------------------------------------
@@ -140,9 +131,6 @@ class Parcel(Base):
             return None
         return self.area_sqm * 0.000247105
 
-    __table_args__ = (
-        Index("idx_parcels_geom", geom, postgresql_using="gist"),
-    )
 
 
 # ---------------------------------------------------------------------------
@@ -167,9 +155,6 @@ class Zoning(Base):
         DateTime(timezone=True), default=_utcnow, onupdate=_utcnow
     )
 
-    __table_args__ = (
-        Index("idx_zoning_geom", geom, postgresql_using="gist"),
-    )
 
 
 # ---------------------------------------------------------------------------
@@ -194,9 +179,6 @@ class Constraint(Base):
         DateTime(timezone=True), default=_utcnow, onupdate=_utcnow
     )
 
-    __table_args__ = (
-        Index("idx_constraints_geom", geom, postgresql_using="gist"),
-    )
 
 
 # ---------------------------------------------------------------------------

@@ -6,8 +6,8 @@ import json
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query
-from geoalchemy2.functions import ST_AsGeoJSON, ST_DWithin, ST_Intersects
-from sqlalchemy import func, select
+from geoalchemy2 import Geography
+from sqlalchemy import cast, func, select
 from sqlalchemy.orm import Session
 
 from app.database import get_db
@@ -85,8 +85,8 @@ def list_parcels(
             select(Substation.id)
             .where(
                 func.ST_DWithin(
-                    func.cast(Parcel.geom, func.Geography()),
-                    func.cast(Substation.geom, func.Geography()),
+                    cast(Parcel.geom, Geography),
+                    cast(Substation.geom, Geography),
                     power_proximity_km * M_PER_KM,
                 )
             )
