@@ -1,110 +1,93 @@
 # GTA Commercial Real Estate Dashboard
 
-Aggregated commercial real estate listings from 12 brokerages across the Greater Toronto Area, with a filterable React dashboard.
+A dashboard that pulls commercial real estate listings from 12 brokerages across the GTA into one searchable, filterable view.
 
-## Architecture
+## How to Use
+
+### Prerequisites (one-time installs)
+
+You need two free programs installed. If you don't have them yet:
+
+1. **Python** — Download from https://www.python.org/downloads/
+   - Click the big yellow "Download Python" button
+   - Run the installer
+   - **Important (Windows):** Check the box that says "Add Python to PATH" before clicking Install
+
+2. **Node.js** — Download from https://nodejs.org
+   - Click the green "LTS" button
+   - Run the installer, click Next through everything
+
+### Starting the Dashboard
+
+Open the `gta-cre-dashboard` folder and double-click:
+
+- **Windows:** `Start Dashboard.bat`
+- **Mac:** `Start Dashboard.command`
+
+The first time it runs, it will install everything it needs automatically (~1 minute). After that it starts in a few seconds. Your browser will open to the dashboard.
+
+**Leave the black window open** while you're using the dashboard. Close it when you're done.
+
+### Getting Listings Into the Dashboard
+
+The dashboard starts empty. To pull in listings from all 12 brokerage websites, double-click:
+
+- **Windows:** `Scrape and Start.bat`
+- **Mac:** `Scrape and Start.command`
+
+This takes a few minutes since it's visiting 12 different websites. Once done, the dashboard opens with all the listings loaded. Run this whenever you want fresh data — old data is kept so you can track how long properties have been listed.
+
+## What the Dashboard Shows
+
+- **Active Listings** — All current listings in one filterable table. Filter by asset type (office, retail, industrial, etc.), sale vs. lease, brokerage, price range, square footage, and city. Search bar searches across addresses and broker names.
+- **Brokers** — Directory of all brokers found, sortable by how many active listings they have.
+- **New This Week** — Listings that appeared in the last 7 days.
+- **Delisted This Week** — Listings that disappeared in the last 7 days.
+- **Bar chart** — Visual breakdown of how many listings each brokerage has.
+
+## Brokerages Covered
+
+CBRE, JLL, Colliers, Cushman & Wakefield, Avison Young, Newmark, Lee & Associates, Lennard Commercial Realty, The Behar Group, InTrust CRE, Spacelist, ICX.ca
+
+## Notes
+
+- Some brokerage websites may block or change their layout, causing that scraper to return 0 results. The others will still work.
+- This runs entirely on your computer. No data is sent anywhere.
+- The listing data is stored in a file called `gta_cre.db` in this folder. Don't delete it unless you want to start fresh.
+
+---
+
+## Technical Details (for developers)
+
+### Architecture
 
 ```
 /gta-cre-dashboard
-├── /scrapers          # Individual scraper modules (one per brokerage)
-│   ├── base.py        # Common interface, normalization, utilities
-│   ├── cbre.py        # CBRE Canada
-│   ├── jll.py         # JLL Canada
-│   ├── colliers.py    # Colliers Canada
-│   ├── cushman.py     # Cushman & Wakefield
-│   ├── avison_young.py # Avison Young
-│   ├── newmark.py     # Newmark
-│   ├── lee.py         # Lee & Associates Toronto
-│   ├── lennard.py     # Lennard Commercial Realty
-│   ├── behar.py       # The Behar Group
-│   ├── intrust.py     # InTrust CRE
-│   ├── spacelist.py   # Spacelist
-│   └── icx.py         # ICX.ca
-├── /backend
-│   ├── main.py        # FastAPI server
-│   └── database.py    # SQLite schema, queries, connection
-├── /frontend          # React + Vite + Tailwind dashboard
-├── run_scraper.py     # Orchestrator (cron-ready)
-├── seed_brokerages.py # Pre-populate brokers table
-├── requirements.txt
-└── README.md
+├── /scrapers          # One module per brokerage (requests + BeautifulSoup, Playwright fallback)
+├── /backend           # FastAPI server + SQLite database layer
+├── /frontend          # React + Vite + Tailwind CSS dashboard
+├── start.py           # Launcher (installs deps, builds frontend, starts server)
+├── run_scraper.py     # Scraper orchestrator (supports --only and --exclude flags)
+├── seed_brokerages.py # Seeds the brokers table
+└── requirements.txt   # Python dependencies
 ```
 
-## Setup
-
-### 1. Python dependencies
+### Running from the command line
 
 ```bash
 cd gta-cre-dashboard
-pip install -r requirements.txt
-playwright install chromium
+python start.py              # Start dashboard
+python start.py --scrape     # Scrape + start
+python run_scraper.py        # Just scrape (no server)
+python run_scraper.py --only cbre jll   # Scrape specific brokerages
 ```
 
-### 2. Initialize database and seed brokerages
-
-```bash
-python seed_brokerages.py
-```
-
-### 3. Run scrapers
-
-```bash
-# Run all scrapers
-python run_scraper.py
-
-# Run only specific scrapers
-python run_scraper.py --only cbre jll colliers
-
-# Exclude specific scrapers
-python run_scraper.py --exclude spacelist icx
-```
-
-### 4. Start the API server
-
-```bash
-uvicorn backend.main:app --reload --port 8000
-```
-
-### 5. Start the frontend
-
-```bash
-cd frontend
-npm install
-npm run dev
-```
-
-The dashboard will be at http://localhost:5173 with the API proxied to port 8000.
-
-## Database
-
-SQLite database (`gta_cre.db`) with three tables:
-
-- **listings** — All scraped properties with address, asset type, pricing, broker info, and active/inactive tracking
-- **brokers** — Broker directory (name, brokerage, email, phone, LinkedIn)
-- **scrape_runs** — Audit log of each scrape execution
-
-Deduplication is by `address + brokerage`. On each run, existing listings get their `date_last_seen` updated. Listings not found in the latest scrape are marked `is_active = false`.
-
-## Dashboard Features
-
-- Filterable table of active listings (asset type, listing type, brokerage, price range, sqft range, city)
-- Full-text search across address and broker names
-- Brokers tab with active listing counts, sortable
-- New This Week / Delisted This Week tabs
-- Bar chart of active listings by brokerage
-
-## Cron Setup
-
-Add to crontab for daily scraping:
+### Automated daily scraping (cron)
 
 ```bash
 0 6 * * * cd /path/to/gta-cre-dashboard && python run_scraper.py >> cron.log 2>&1
 ```
 
-## Notes
+### Database
 
-- Scrapers use `requests + BeautifulSoup` for static sites and `Playwright` for JS-rendered sites
-- Random delays (2-5s) between requests to be respectful
-- Robots.txt is checked before scraping
-- Some brokerage sites may block or change their structure — scrapers fail gracefully and log errors
-- No authentication or multi-user support (local MVP)
+SQLite (`gta_cre.db`) with tables: `listings`, `brokers`, `scrape_runs`. Deduplication by address + brokerage. Tracks `date_first_seen`, `date_last_seen`, and `is_active` for market duration analysis.
