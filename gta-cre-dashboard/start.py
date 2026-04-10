@@ -1,84 +1,146 @@
 #!/usr/bin/env python3
 """One-command launcher for the GTA CRE Dashboard.
 
-Usage:
-    python start.py              # Build frontend, seed DB, start server on port 8000
-    python start.py --scrape     # Also run scrapers before starting
-    python start.py --port 3000  # Use a different port
+Double-click this file, or run:
+    python start.py
 
-Opens http://localhost:8000 in your browser automatically.
+That's it. Everything else is handled automatically.
 """
 
 import argparse
 import os
+import shutil
 import subprocess
 import sys
-import webbrowser
 import threading
+import webbrowser
 
 PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
 FRONTEND_DIR = os.path.join(PROJECT_DIR, "frontend")
 DIST_DIR = os.path.join(FRONTEND_DIR, "dist")
 
 
+def log(msg):
+    print(f"  {msg}")
+
+
 def run(cmd, cwd=None, check=True):
     """Run a shell command and stream output."""
-    print(f"\n>>> {cmd}")
-    return subprocess.run(cmd, shell=True, cwd=cwd or PROJECT_DIR, check=check)
+    return subprocess.run(
+        cmd, shell=True, cwd=cwd or PROJECT_DIR, check=check,
+        stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True,
+    )
 
 
-def check_python_deps():
-    """Install Python dependencies if needed."""
-    try:
-        import fastapi
-        import uvicorn
-        import requests
-        import bs4
-    except ImportError:
-        print("Installing Python dependencies...")
-        run(f"{sys.executable} -m pip install -q -r requirements.txt")
+def check_prerequisites():
+    """Check that Python and Node.js are available, and guide if not."""
+    # Python is obviously here since we're running
+    log("Python found: " + sys.executable)
+
+    # Check for Node.js / npm
+    if not shutil.which("npm"):
+        print("\n" + "=" * 50)
+        print("  Node.js is required but not installed.")
+        print()
+        print("  Please install it from: https://nodejs.org")
+        print("  (Download the LTS version, run the installer,")
+        print("   then come back and run this script again.)")
+        print("=" * 50)
+        input("\nPress Enter to exit...")
+        sys.exit(1)
+
+    log("Node.js found: " + (shutil.which("node") or "npm available"))
+
+
+def install_python_deps():
+    """Install Python packages automatically."""
+    needs_install = False
+    for pkg in ["fastapi", "uvicorn", "requests", "bs4", "lxml"]:
+        try:
+            __import__(pkg)
+        except ImportError:
+            needs_install = True
+            break
+
+    if needs_install:
+        log("Installing Python packages (one-time)...")
+        result = run(f"{sys.executable} -m pip install -q -r requirements.txt")
+        if result.returncode != 0:
+            print(result.stdout)
+            print("Failed to install Python packages. Try running manually:")
+            print(f"  pip install -r {os.path.join(PROJECT_DIR, 'requirements.txt')}")
+            input("\nPress Enter to exit...")
+            sys.exit(1)
+        log("Python packages installed.")
+    else:
+        log("Python packages already installed.")
 
 
 def build_frontend():
-    """Install npm deps and build the React frontend if not already built."""
+    """Install npm packages and build the React dashboard."""
     node_modules = os.path.join(FRONTEND_DIR, "node_modules")
     if not os.path.isdir(node_modules):
-        print("Installing frontend dependencies...")
-        run("npm install", cwd=FRONTEND_DIR)
+        log("Installing frontend packages (one-time, may take a minute)...")
+        result = run("npm install", cwd=FRONTEND_DIR)
+        if result.returncode != 0:
+            print(result.stdout)
+            print("Failed to install frontend packages.")
+            input("\nPress Enter to exit...")
+            sys.exit(1)
 
     if not os.path.isdir(DIST_DIR) or not os.path.isfile(os.path.join(DIST_DIR, "index.html")):
-        print("Building frontend...")
-        run("npm run build", cwd=FRONTEND_DIR)
+        log("Building dashboard...")
+        result = run("npm run build", cwd=FRONTEND_DIR)
+        if result.returncode != 0:
+            print(result.stdout)
+            print("Failed to build frontend.")
+            input("\nPress Enter to exit...")
+            sys.exit(1)
+        log("Dashboard built.")
     else:
-        print("Frontend already built. Delete frontend/dist to rebuild.")
+        log("Dashboard already built.")
 
 
-def seed_database():
-    """Initialize DB and seed brokerages."""
-    print("Initializing database...")
-    # Import here after deps are installed
+def setup_database():
+    """Create the database and seed brokerages."""
     sys.path.insert(0, PROJECT_DIR)
-    from backend.database import init_db
+    from backend.database import init_db, get_connection
     init_db()
 
-    from seed_brokerages import seed
-    seed()
+    # Check if already seeded
+    conn = get_connection()
+    count = conn.execute("SELECT COUNT(*) as c FROM brokers").fetchone()["c"]
+    conn.close()
+
+    if count == 0:
+        log("Setting up database with brokerage list...")
+        from seed_brokerages import seed
+        seed()
+    else:
+        log(f"Database ready ({count} brokers on file).")
 
 
 def run_scrapers():
-    """Run the scraper orchestrator."""
-    print("\nRunning scrapers (this may take a few minutes)...")
-    run(f"{sys.executable} run_scraper.py")
+    """Run all scrapers to populate the database."""
+    log("Scraping listings from all brokerages...")
+    log("(This may take a few minutes — fetching from 12 websites)")
+    run(f"{sys.executable} run_scraper.py", check=False)
 
 
 def start_server(port):
-    """Start the FastAPI server."""
-    print(f"\n{'='*50}")
-    print(f"  Dashboard ready at: http://localhost:{port}")
-    print(f"  Press Ctrl+C to stop")
-    print(f"{'='*50}\n")
+    """Start the web server and open the browser."""
+    print()
+    print("=" * 50)
+    print()
+    print(f"  Dashboard is live at:")
+    print(f"  http://localhost:{port}")
+    print()
+    print(f"  Leave this window open.")
+    print(f"  Close it or press Ctrl+C to stop.")
+    print()
+    print("=" * 50)
+    print()
 
-    # Open browser after a short delay
     def open_browser():
         import time
         time.sleep(1.5)
@@ -86,28 +148,54 @@ def start_server(port):
 
     threading.Thread(target=open_browser, daemon=True).start()
 
-    run(f"{sys.executable} -m uvicorn backend.main:app --host 0.0.0.0 --port {port}", check=False)
+    # Run uvicorn directly (not via shell) for cleaner output
+    try:
+        import uvicorn
+        uvicorn.run("backend.main:app", host="0.0.0.0", port=port, log_level="warning")
+    except KeyboardInterrupt:
+        print("\nDashboard stopped.")
 
 
 def main():
-    parser = argparse.ArgumentParser(description="GTA CRE Dashboard Launcher")
-    parser.add_argument("--port", type=int, default=8000, help="Server port (default: 8000)")
-    parser.add_argument("--scrape", action="store_true", help="Run scrapers before starting")
-    parser.add_argument("--skip-build", action="store_true", help="Skip frontend build")
+    parser = argparse.ArgumentParser(description="GTA CRE Dashboard")
+    parser.add_argument("--port", type=int, default=8000)
+    parser.add_argument("--scrape", action="store_true", help="Fetch fresh listings before starting")
+    parser.add_argument("--skip-build", action="store_true")
     args = parser.parse_args()
 
     os.chdir(PROJECT_DIR)
 
+    print()
     print("=" * 50)
-    print("  GTA CRE Dashboard — Setup & Launch")
+    print("  GTA CRE Dashboard")
+    print("  Setting up (first run takes ~1 minute)...")
     print("=" * 50)
+    print()
 
-    check_python_deps()
+    check_prerequisites()
+    install_python_deps()
 
     if not args.skip_build:
         build_frontend()
 
-    seed_database()
+    setup_database()
+
+    # Check if DB has any listings
+    sys.path.insert(0, PROJECT_DIR)
+    from backend.database import get_connection
+    conn = get_connection()
+    listing_count = conn.execute("SELECT COUNT(*) as c FROM listings").fetchone()["c"]
+    conn.close()
+
+    if listing_count == 0 and not args.scrape:
+        print()
+        print("-" * 50)
+        print("  Your database is empty (no listings yet).")
+        print("  To fetch listings, stop this and run:")
+        print(f"    python start.py --scrape")
+        print("  Or run the scraper separately anytime:")
+        print(f"    python run_scraper.py")
+        print("-" * 50)
 
     if args.scrape:
         run_scrapers()
