@@ -10,6 +10,8 @@ That's it. Everything else is handled automatically.
 import argparse
 import os
 import shutil
+import signal
+import socket
 import subprocess
 import sys
 import threading
@@ -32,12 +34,58 @@ def run(cmd, cwd=None, check=True):
     )
 
 
+def is_port_in_use(port):
+    """Check if a port is already in use."""
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        return s.connect_ex(("127.0.0.1", port)) == 0
+
+
+def free_port(port):
+    """Try to free a port by killing whatever is using it."""
+    if not is_port_in_use(port):
+        return True
+
+    log(f"Port {port} is already in use. Trying to free it...")
+    try:
+        # Find and kill the process using this port (Mac/Linux)
+        result = subprocess.run(
+            f"lsof -ti tcp:{port}", shell=True, capture_output=True, text=True
+        )
+        if result.stdout.strip():
+            for pid in result.stdout.strip().split("\n"):
+                pid = pid.strip()
+                if pid:
+                    os.kill(int(pid), signal.SIGTERM)
+            import time
+            time.sleep(1)
+            log(f"Freed port {port}.")
+            return True
+    except Exception:
+        pass
+
+    # If we still can't free it, try Windows approach
+    try:
+        result = subprocess.run(
+            f'netstat -ano | findstr :{port}', shell=True, capture_output=True, text=True
+        )
+        for line in result.stdout.strip().split("\n"):
+            parts = line.split()
+            if parts:
+                pid = parts[-1]
+                subprocess.run(f"taskkill /PID {pid} /F", shell=True, capture_output=True)
+        import time
+        time.sleep(1)
+        return True
+    except Exception:
+        pass
+
+    return not is_port_in_use(port)
+
+
 def check_prerequisites():
     """Check that Python and Node.js are available, and guide if not."""
-    # Python is obviously here since we're running
     log("Python found: " + sys.executable)
 
-    # Check for Node.js / npm
     if not shutil.which("npm"):
         print("\n" + "=" * 50)
         print("  Node.js is required but not installed.")
@@ -66,7 +114,6 @@ def install_python_deps():
         log("Installing Python packages (one-time)...")
         result = run(f"{sys.executable} -m pip install -r requirements.txt")
         if result.returncode != 0:
-            # Try with --user flag (works on systems where global install is blocked)
             log("Retrying with --user flag...")
             result = run(f"{sys.executable} -m pip install --user -r requirements.txt")
         if result.returncode != 0:
@@ -112,7 +159,6 @@ def setup_database():
     from backend.database import init_db, get_connection
     init_db()
 
-    # Check if already seeded
     conn = get_connection()
     count = conn.execute("SELECT COUNT(*) as c FROM brokers").fetchone()["c"]
     conn.close()
@@ -125,6 +171,25 @@ def setup_database():
         log(f"Database ready ({count} brokers on file).")
 
 
+def load_demo_if_empty():
+    """Load demo data if the database has no listings."""
+    sys.path.insert(0, PROJECT_DIR)
+    from backend.database import get_connection
+    conn = get_connection()
+    listing_count = conn.execute("SELECT COUNT(*) as c FROM listings").fetchone()["c"]
+    conn.close()
+
+    if listing_count == 0:
+        log("Loading demo listings so you can see the dashboard...")
+        result = run(f"{sys.executable} load_demo_data.py")
+        if result.returncode == 0:
+            print(result.stdout)
+        else:
+            log("Could not load demo data, but dashboard will still work.")
+    else:
+        log(f"Database has {listing_count} listings.")
+
+
 def run_scrapers():
     """Run all scrapers to populate the database."""
     log("Scraping listings from all brokerages...")
@@ -134,6 +199,15 @@ def run_scrapers():
 
 def start_server(port):
     """Start the web server and open the browser."""
+    # Free the port if something is already using it
+    if is_port_in_use(port):
+        if not free_port(port):
+            log(f"Port {port} is in use and couldn't be freed.")
+            log(f"Close any other dashboard windows and try again,")
+            log(f"or use: python start.py --port 8001")
+            input("\nPress Enter to exit...")
+            sys.exit(1)
+
     print()
     print("=" * 50)
     print()
@@ -153,8 +227,6 @@ def start_server(port):
 
     threading.Thread(target=open_browser, daemon=True).start()
 
-    # Run uvicorn as a subprocess using the same Python that ran this script
-    # This avoids import errors when packages were installed during this session
     try:
         subprocess.run(
             [sys.executable, "-m", "uvicorn", "backend.main:app",
@@ -189,25 +261,10 @@ def main():
 
     setup_database()
 
-    # Check if DB has any listings
-    sys.path.insert(0, PROJECT_DIR)
-    from backend.database import get_connection
-    conn = get_connection()
-    listing_count = conn.execute("SELECT COUNT(*) as c FROM listings").fetchone()["c"]
-    conn.close()
-
-    if listing_count == 0 and not args.scrape:
-        print()
-        print("-" * 50)
-        print("  Your database is empty (no listings yet).")
-        print("  To fetch listings, stop this and run:")
-        print(f"    python start.py --scrape")
-        print("  Or run the scraper separately anytime:")
-        print(f"    python run_scraper.py")
-        print("-" * 50)
-
     if args.scrape:
         run_scrapers()
+
+    load_demo_if_empty()
 
     start_server(args.port)
 
