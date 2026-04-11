@@ -64,11 +64,16 @@ def install_python_deps():
 
     if needs_install:
         log("Installing Python packages (one-time)...")
-        result = run(f"{sys.executable} -m pip install -q -r requirements.txt")
+        result = run(f"{sys.executable} -m pip install -r requirements.txt")
+        if result.returncode != 0:
+            # Try with --user flag (works on systems where global install is blocked)
+            log("Retrying with --user flag...")
+            result = run(f"{sys.executable} -m pip install --user -r requirements.txt")
         if result.returncode != 0:
             print(result.stdout)
-            print("Failed to install Python packages. Try running manually:")
-            print(f"  pip install -r {os.path.join(PROJECT_DIR, 'requirements.txt')}")
+            print("Failed to install Python packages.")
+            print("Please open Terminal and run:")
+            print(f"  pip3 install -r {os.path.join(PROJECT_DIR, 'requirements.txt')}")
             input("\nPress Enter to exit...")
             sys.exit(1)
         log("Python packages installed.")
@@ -148,10 +153,14 @@ def start_server(port):
 
     threading.Thread(target=open_browser, daemon=True).start()
 
-    # Run uvicorn directly (not via shell) for cleaner output
+    # Run uvicorn as a subprocess using the same Python that ran this script
+    # This avoids import errors when packages were installed during this session
     try:
-        import uvicorn
-        uvicorn.run("backend.main:app", host="0.0.0.0", port=port, log_level="warning")
+        subprocess.run(
+            [sys.executable, "-m", "uvicorn", "backend.main:app",
+             "--host", "0.0.0.0", "--port", str(port), "--log-level", "warning"],
+            cwd=PROJECT_DIR,
+        )
     except KeyboardInterrupt:
         print("\nDashboard stopped.")
 
